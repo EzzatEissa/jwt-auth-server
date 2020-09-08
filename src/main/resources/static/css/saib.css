@@ -1,0 +1,78 @@
+.login-logo{
+    background-image: url('../images/logo.png');
+    border: 1px solid #1d1d1b;
+    border-radius: 10px;
+}
+
+.verify-logo{
+    background-image: url('../images/verify-logo-1.png');
+    border: 3px solid #3e3e3e;
+    border-radius: 50%;
+}
+
+
+.outer-card {
+    background-color: #FDCD02;
+    padding: 30px;
+    border-radius:10px;
+}
+
+.verify-outer-card {
+    background-color: #FDCD02;
+    padding: 30px;
+    border-radius:10px;
+    width: 35%;
+}
+
+
+
+.btn{
+    background-color: #FDCD02;
+}
+
+input:focus, textarea:focus{
+    border-top: 1px solid #DEE4E8 !important;
+    border-right: 1px solid #DEE4E8 !important;
+    border-left: 1px solid #DEE4E8 !important;
+    border-bottom: 3px solid #060302 !important;
+    transition: all 0.2s linear !important;
+}
+
+.custom-control-input:focus:not(:checked) ~ .custom-control-label::before{
+    border-color: #DEE4E8 !important;
+}
+
+textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus,
+.uneditable-input:focus {
+    border-color: #FDCD02;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px #FDCD02;
+    outline: 0 none;
+}
+
+.container {
+    position: relative;
+    top: 40%;
+    transform: translateY(40%);
+}
+
+.login-body {
+    background: url('../images/saib2.jpg');
+}
+
+.verify-body {
+    background: url('../images/saib2.jpg');
+}
