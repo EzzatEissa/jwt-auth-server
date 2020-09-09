@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS oauth_client_details (
   description VARCHAR(256),
   created_at datetime DEFAULT NULL,
   last_updated_at datetime DEFAULT NULL,
-  app_name VARCHAR(256)
+  app_name VARCHAR(256),
+  fintech VARCHAR(256)
 );
 
 

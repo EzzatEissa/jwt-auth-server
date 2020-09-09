@@ -12,6 +12,7 @@ public class AppDto extends BaseDto {
     private String authorizedGrantTypes;
     private String registeredRedirectUri;
     private String appName;
+    private String fintech;
 
     private List<PermissionDto> permissions;
 
@@ -61,5 +62,13 @@ public class AppDto extends BaseDto {
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    public String getFintech() {
+        return fintech;
+    }
+
+    public void setFintech(String fintech) {
+        this.fintech = fintech;
     }
 }

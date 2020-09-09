@@ -35,6 +35,8 @@ public class App extends BaseEntity{
 
     private String appName;
 
+    private String fintech;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "app")
     private Set<Consent> consents;
 
@@ -155,5 +157,13 @@ public class App extends BaseEntity{
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    public String getFintech() {
+        return fintech;
+    }
+
+    public void setFintech(String fintech) {
+        this.fintech = fintech;
     }
 }

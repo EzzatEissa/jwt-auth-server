@@ -5,16 +5,16 @@
   -- ------------------------- Client -------------------------------------------
 
 INSERT INTO oauth_client_details
-(id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name)
-VALUES(1,'clientId', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'http://localhost:8090/approveConsents', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Amazon');
+(id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name, fintech)
+VALUES(1,'41e82ce557c2-865c-4054-865c-5e112533', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.of-dg.com/authenticate-success', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Offers', 'Digital World');
 
 INSERT INTO oauth_client_details
-(id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name)
-VALUES(2,'clientId2', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'http://localhost:8090/approveConsents', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Facebook');
+(id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name, fintech)
+VALUES(2,'5e112533-4ebf-4054-4ebf-41e82ce557c2', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.la-dg.com/authenticate-success', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Loan Calculator', 'Digital World');
 
 INSERT INTO oauth_client_details
-(id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name)
-VALUES(3,'5e112533-4ebf-4054-865c-41e82ce557c2', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.google.ca', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Souq');
+(id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name, fintech)
+VALUES(3,'5e112533-4ebf-4054-865c-41e82ce557c2', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.info-tech.com/app-callback', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Digital Payment', 'Info-Tech');
 
   
   
@@ -74,15 +74,15 @@ INSERT INTO segment_permission VALUES (1,3);
 -- ------------------------- USER ----------------------------
 INSERT INTO user
 (id, created_at, description, last_updated_at, status, name, password, user_name, segment, first_name, last_name, mobile)
-VALUES(1, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Ezzat Ateya Eissa', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', '1', 1, 'Ezzat', 'Eissa', '9667000');
+VALUES(1, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Mohamed Mahmoud Abo Senna', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', '11112222', 1, 'Mohamed', 'Mahmoud', '9667000');
 
 INSERT INTO user
 (id, created_at, description, last_updated_at, status, name, password, user_name, segment, first_name, last_name, mobile)
-VALUES(2, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Mohamed Senna', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', '2', 2, 'Mohamed', 'Senna', '9668000');
+VALUES(2, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Ezzat Eissa', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', '33334444', 2, 'Ezzat', 'Eissa', '9668000');
 
 INSERT INTO user
 (id, created_at, description, last_updated_at, status, name, password, user_name, segment, first_name, last_name, mobile)
-VALUES(3, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Mohamed Abdallah', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', '3', 2, 'Mohamed', 'Abdallah', '9669000');
+VALUES(3, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Mohamed Abdallah', '{bcrypt}$2a$10$cyf5NfobcruKQ8XGjUJkEegr9ZWFqaea6vjpXWEaSqTa2xL9wjgQC', '55556666', 2, 'Mohamed', 'Abdallah', '9669000');
 -- ------------------------- ACCOUNT ----------------------------
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
