@@ -6,11 +6,11 @@
 
 INSERT INTO oauth_client_details
 (id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name, fintech)
-VALUES(1,'41e82ce557c2-865c-4054-865c-5e112533', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.of-dg.com/authenticate-success', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Offers', 'Digital World');
+VALUES(1,'58a82ce582ce-865c-4054-865c-xyf12225', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.of-dg.com/authenticate-success', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Tawfeer', 'Digital World');
 
 INSERT INTO oauth_client_details
 (id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name, fintech)
-VALUES(2,'5e112533-4ebf-4054-4ebf-41e82ce557c2', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.la-dg.com/authenticate-success', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Loan Calculator', 'Digital World');
+VALUES(2,'6z222533-4xyf-4qw4-4ebf-56z82ce558a9', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.la-dg.com/authenticate-success', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Loan Calculator', 'Digital World');
 
 INSERT INTO oauth_client_details
 (id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name, fintech)

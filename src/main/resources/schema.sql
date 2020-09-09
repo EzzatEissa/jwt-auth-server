@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS oauth_client_details (
   created_at datetime DEFAULT NULL,
   last_updated_at datetime DEFAULT NULL,
   app_name VARCHAR(256),
-  fintech VARCHAR(256)
+  fintech VARCHAR(256),
+  UNIQUE KEY unique_client_id(client_id)
 );
 
 
@@ -158,7 +159,8 @@ CREATE TABLE IF NOT EXISTS consent (
   app bigint(20) DEFAULT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (app) REFERENCES oauth_client_details (id),
-  FOREIGN KEY (account) REFERENCES account (id)
+  FOREIGN KEY (account) REFERENCES account (id),
+  UNIQUE KEY app_account_constains(account, app)
 );
 
 CREATE TABLE IF NOT EXISTS consent_permission (
