@@ -14,7 +14,7 @@ VALUES(2,'6z222533-4xyf-4qw4-4ebf-56z82ce558a9', '1,2,3,4', '{bcrypt}$2a$10$vCXM
 
 INSERT INTO oauth_client_details
 (id,client_id, resource_ids, client_secret, `scope`, authorized_grant_types, web_server_redirect_uri, authorities, access_token_validity, refresh_token_validity, additional_information, autoapprove, app_name, fintech)
-VALUES(3,'34893bd3-ed14-4545-988a-13a81e4dce22', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.info-tech.com/app-callback', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Digital Payment', 'Info-Tech');
+VALUES(3,'aa3ce24a-6cd5-4d51-891d-dc514af389c2', '1,2,3,4', '{bcrypt}$2a$10$vCXMWCn7fDZWOcLnIEhmK.74dvK1Eh8ae2WrWlhr2ETPLoxQctN4.', NULL, 'authorization_code,password,refresh_token,client_credentials', 'https://www.info-tech.com/app-callback', 'ROLE_CLIENT', 300, NULL, NULL, NULL, 'Digital Payment', 'Info-Tech');
 
 -- 5e112533-4ebf-4054-865c-41e82ce557c2
   
