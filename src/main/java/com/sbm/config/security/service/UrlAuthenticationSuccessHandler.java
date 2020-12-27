@@ -61,13 +61,16 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 					.append("&confirmation=")
 					.append("AB");
 			System.out.println("currentUrl " + currentUrl);
+			LOG.info("currentUrl " + currentUrl);
 			System.out.println("Redirect location original = " + location.toString());
+			LOG.info("Redirect location original = " + location.toString());
 			redirectStrategy.sendRedirect(request, response, URLDecoder.decode( location.toString(), "UTF-8" ));
 		} else {
 			if(userSession != null && userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST") != null && !"".equals(userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST"))) {
 				SavedRequest previousSavedUrl = (SavedRequest)userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
 				userSession.setAttribute("savedUrl",previousSavedUrl.getRedirectUrl());
 				System.out.println("without original url ===== == == " + previousSavedUrl.getRedirectUrl());
+				LOG.info("without original url ===== == == " + previousSavedUrl.getRedirectUrl());
 				redirectStrategy.sendRedirect(request, response, REDIRECT_PATH);
 			}
 		}
