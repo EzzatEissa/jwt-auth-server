@@ -25,6 +25,9 @@ public class CheckConfirmController {
     public ResponseEntity<String> auth(HttpServletRequest request, HttpSession session) {
 
         LOG.info("************************************* CONFIRMED **************************************************");
+
+        LOG.info("*************************************" + request.getQueryString() +"**************************************************");
+
         return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
     }
 }
