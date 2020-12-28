@@ -7,9 +7,9 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(uniqueConstraints={
-        @UniqueConstraint(columnNames = {"app", "account"})
-})
+//@Table(uniqueConstraints={
+//        @UniqueConstraint(columnNames = {"app", "account"})
+//})
 public class Consent extends BaseEntity {
 
     @ManyToMany
