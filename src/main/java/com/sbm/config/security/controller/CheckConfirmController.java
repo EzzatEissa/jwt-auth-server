@@ -49,33 +49,35 @@ public class CheckConfirmController {
         }
         LOG.info("*************************************" + requestInfo +"**************************************************");
 
-        final String authorization = request.getHeader("Authorization");
-        if (authorization != null && authorization.toLowerCase().startsWith("basic")) {
-            // Authorization: Basic base64credentials
-            String base64Credentials = authorization.substring("Basic".length()).trim();
-            byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
-            String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+//        final String authorization = request.getHeader("Authorization");
+//        if (authorization != null && authorization.toLowerCase().startsWith("basic")) {
+//            // Authorization: Basic base64credentials
+//            String base64Credentials = authorization.substring("Basic".length()).trim();
+//            byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+//            String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+//
+//            final String[] values = credentials.split(":", 2);
+//             if(values != null && values.length == 2) {
+//                 UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//                 String  currentUserDetails = userDetails.getUsername();
+//
+//                 HttpSession userSession = request.getSession();
+//                 String confirmation = (String)userSession.getAttribute("confirmation");
+//
+//                 String userName = values[0];
+//                 String confirmCode = values[1];
+//
+//                 if(userName.equals(currentUserDetails) && confirmCode.equals(confirmation)) {
+//                     return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
+//                 }
+//             }
+//
+//
+//        }
+//        return new ResponseEntity<String>("unauthorized user", HttpStatus.UNAUTHORIZED);
 
-            final String[] values = credentials.split(":", 2);
-             if(values != null && values.length == 2) {
-                 UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                 String  currentUserDetails = userDetails.getUsername();
 
-                 HttpSession userSession = request.getSession();
-                 String confirmation = (String)userSession.getAttribute("confirmation");
-
-                 String userName = values[0];
-                 String confirmCode = values[1];
-
-                 if(userName.equals(currentUserDetails) && confirmCode.equals(confirmation)) {
-                     return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
-                 }
-             }
-
-
-        }
-        return new ResponseEntity<String>("unauthorized user", HttpStatus.UNAUTHORIZED);
-
+        return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
     }
 
 
