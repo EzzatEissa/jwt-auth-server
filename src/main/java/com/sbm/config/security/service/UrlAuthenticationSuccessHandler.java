@@ -60,6 +60,8 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 					.append(user.getUsername())
 					.append("&confirmation=")
 					.append("AB");
+
+			userSession.setAttribute("confirmation", "AB");
 			System.out.println("currentUrl " + currentUrl);
 			LOG.info("currentUrl " + currentUrl);
 			System.out.println("Redirect location original = " + location.toString());

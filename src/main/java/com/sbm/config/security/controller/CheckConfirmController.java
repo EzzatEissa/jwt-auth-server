@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +17,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +48,34 @@ public class CheckConfirmController {
             e.printStackTrace();
         }
         LOG.info("*************************************" + requestInfo +"**************************************************");
-        return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
+
+        final String authorization = request.getHeader("Authorization");
+        if (authorization != null && authorization.toLowerCase().startsWith("basic")) {
+            // Authorization: Basic base64credentials
+            String base64Credentials = authorization.substring("Basic".length()).trim();
+            byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+            String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+
+            final String[] values = credentials.split(":", 2);
+             if(values != null && values.length == 2) {
+                 UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                 String  currentUserDetails = userDetails.getUsername();
+
+                 HttpSession userSession = request.getSession();
+                 String confirmation = (String)userSession.getAttribute("confirmation");
+
+                 String userName = values[0];
+                 String confirmCode = values[1];
+
+                 if(userName.equals(currentUserDetails) && confirmCode.equals(confirmation)) {
+                     return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
+                 }
+             }
+
+
+        }
+        return new ResponseEntity<String>("unauthorized user", HttpStatus.UNAUTHORIZED);
+
     }
 
 
