@@ -65,15 +65,14 @@ public class CheckConfirmController {
 
             final String[] values = credentials.split(":", 2);
              if(values != null && values.length == 2) {
-                 UserDetails userDetails = (UserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                 String  currentUserDetails = userDetails.getUsername();
-
-                 LOG.info("************************************* currentUserDetails " + currentUserDetails +"**************************************************");
 
                  HttpSession userSession = request.getSession();
                  String confirmation = (String)userSession.getAttribute("confirmation");
+                 String  loggedInUserName = (String)userSession.getAttribute("userName");
 
                  LOG.info("************************************* confirmation " + confirmation +"**************************************************");
+
+                 LOG.info("************************************* loggedInUserName " + loggedInUserName +"**************************************************");
                  String userName = values[0];
                  String confirmCode = values[1];
 
@@ -81,7 +80,7 @@ public class CheckConfirmController {
 
                  LOG.info("************************************* confirmCode " + confirmCode +"**************************************************");
 
-                 if(userName.equals(currentUserDetails) && confirmCode.equals(confirmation)) {
+                 if(userName.equals(loggedInUserName) && confirmCode.equals(confirmation)) {
                      LOG.info("************************************* Confirmed successfully**************************************************");
                      return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
                  }
