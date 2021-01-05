@@ -60,7 +60,7 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 		if(currentUrl != null && currentUrl.contains("original-url")) {
 			String externalUrl = currentUrl.split("original-url=")[1];
 			String serverUrl = getServerUrl(request);
-			String authorizeUrl = composeAuthorizeUrl(externalUrl, serverUrl);
+			String authorizeUrl = composeAuthorizeUrl(URLDecoder.decode( externalUrl.toString(), "UTF-8" ), serverUrl);
 
 			location.append(externalUrl)
 					.append("&username=")
