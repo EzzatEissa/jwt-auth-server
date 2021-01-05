@@ -47,8 +47,6 @@ public class ApprovalController{
 
 	private UserApprovalHandler userApprovalHandler = new DefaultUserApprovalHandler();
 
-	private Object implicitLock = new Object();
-
 	@RequestMapping("/oauth/confirm_access")
 	public ModelAndView getAccessConfirmation(Map<String, Object> model, HttpServletRequest request) throws Exception {
 		final String approvalContent = createTemplate(model, request);
@@ -74,7 +72,7 @@ public class ApprovalController{
 	}
 
 
-	@RequestMapping(value = "/oauth/authorize22", method = RequestMethod.POST, params = OAuth2Utils.USER_OAUTH_APPROVAL)
+	@RequestMapping(value = "/oauth/user-authorize", method = RequestMethod.POST, params = OAuth2Utils.USER_OAUTH_APPROVAL)
 	public View approveOrDeny(@RequestParam Map<String, String> approvalParameters, Map<String, ?> model,
 							  SessionStatus sessionStatus, Principal principal, HttpServletResponse httpServletResponse, HttpServletRequest request) {
 
@@ -147,7 +145,7 @@ public class ApprovalController{
 			requestPath = "";
 		}
 
-		builder.append(requestPath).append("/oauth/authorize22\" method=\"post\">");
+		builder.append(requestPath).append("/oauth/user-authorize\" method=\"post\">");
 		builder.append("<input name=\"user_oauth_approval\" value=\"true\" type=\"hidden\"/>");
 
 		String csrfTemplate = null;
