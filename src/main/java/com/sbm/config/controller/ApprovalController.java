@@ -1,26 +1,54 @@
 package com.sbm.config.controller;
 
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.common.exceptions.InvalidRequestException;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
+import org.springframework.security.oauth2.common.exceptions.UserDeniedAuthorizationException;
+import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
+import org.springframework.security.oauth2.provider.approval.DefaultUserApprovalHandler;
+import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.net.URI;
+import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Controller
-@SessionAttributes("authorizationRequest")
+@SessionAttributes({ApprovalController.AUTHORIZATION_REQUEST_ATTR_NAME, ApprovalController.ORIGINAL_AUTHORIZATION_REQUEST_ATTR_NAME})
 @RequestMapping
-public class ApprovalController {
+public class ApprovalController{
+
+	static final String AUTHORIZATION_REQUEST_ATTR_NAME = "authorizationRequest";
+
+	static final String ORIGINAL_AUTHORIZATION_REQUEST_ATTR_NAME = "org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint.ORIGINAL_AUTHORIZATION_REQUEST";
+
+	private UserApprovalHandler userApprovalHandler = new DefaultUserApprovalHandler();
+
+	private Object implicitLock = new Object();
+
 	@RequestMapping("/oauth/confirm_access")
 	public ModelAndView getAccessConfirmation(Map<String, Object> model, HttpServletRequest request) throws Exception {
 		final String approvalContent = createTemplate(model, request);
@@ -41,9 +69,68 @@ public class ApprovalController {
 		};
 		ModelAndView modelView = new ModelAndView(approvalView, model);
 		modelView.setStatus(HttpStatus.MOVED_PERMANENTLY);
+//		AuthorizationEndpoint
 		return modelView;
 	}
-	
+
+
+	@RequestMapping(value = "/oauth/authorize22", method = RequestMethod.POST, params = OAuth2Utils.USER_OAUTH_APPROVAL)
+	public View approveOrDeny(@RequestParam Map<String, String> approvalParameters, Map<String, ?> model,
+							  SessionStatus sessionStatus, Principal principal, HttpServletResponse httpServletResponse, HttpServletRequest request) {
+
+		HttpSession httpSession = request.getSession();
+		if (!(principal instanceof Authentication)) {
+			sessionStatus.setComplete();
+			throw new InsufficientAuthenticationException(
+					"User must be authenticated with Spring Security before authorizing an access token.");
+		}
+
+		AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get(AUTHORIZATION_REQUEST_ATTR_NAME);
+
+		if (authorizationRequest == null) {
+			sessionStatus.setComplete();
+			throw new InvalidRequestException("Cannot approve uninitialized authorization request.");
+		}
+
+		// Check to ensure the Authorization Request was not modified during the user approval step
+		@SuppressWarnings("unchecked")
+		Map<String, Object> originalAuthorizationRequest = (Map<String, Object>) model.get(ORIGINAL_AUTHORIZATION_REQUEST_ATTR_NAME);
+		if (isAuthorizationRequestModified(authorizationRequest, originalAuthorizationRequest)) {
+			throw new InvalidRequestException("Changes were detected from the original authorization request.");
+		}
+
+		try {
+			Set<String> responseTypes = authorizationRequest.getResponseTypes();
+
+			authorizationRequest.setApprovalParameters(approvalParameters);
+			authorizationRequest = userApprovalHandler.updateAfterApproval(authorizationRequest,
+					(Authentication) principal);
+			boolean approved = userApprovalHandler.isApproved(authorizationRequest, (Authentication) principal);
+			authorizationRequest.setApproved(approved);
+
+			if (authorizationRequest.getRedirectUri() == null) {
+				sessionStatus.setComplete();
+				throw new InvalidRequestException("Cannot approve request when no redirect URI is provided.");
+			}
+
+			if (!authorizationRequest.isApproved()) {
+				return new RedirectView(getUnsuccessfulRedirect(authorizationRequest,
+						new UserDeniedAuthorizationException("User denied access"), responseTypes.contains("token")),
+						false, true, false);
+			}
+
+//			httpServletResponse.setHeader("Location", "www.google.com");
+			httpServletResponse.setStatus(302);
+			String externalUrl = (String)httpSession.getAttribute("externalUrl");
+			return new RedirectView(externalUrl,
+					false, true, false);
+		}
+		finally {
+			sessionStatus.setComplete();
+		}
+
+	}
+
 	
 	protected String createTemplate(Map<String, Object> model, HttpServletRequest request) {
 		AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get("authorizationRequest");
@@ -60,7 +147,7 @@ public class ApprovalController {
 			requestPath = "";
 		}
 
-		builder.append(requestPath).append("/oauth/authorize\" method=\"post\">");
+		builder.append(requestPath).append("/oauth/authorize22\" method=\"post\">");
 		builder.append("<input name=\"user_oauth_approval\" value=\"true\" type=\"hidden\"/>");
 
 		String csrfTemplate = null;
@@ -114,6 +201,139 @@ public class ApprovalController {
 		}
 		builder.append("</ul>");
 		return builder.toString();
+	}
+
+	private boolean isAuthorizationRequestModified(
+			AuthorizationRequest authorizationRequest, Map<String, Object> originalAuthorizationRequest) {
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.getClientId(),
+				originalAuthorizationRequest.get(OAuth2Utils.CLIENT_ID))) {
+			return true;
+		}
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.getState(),
+				originalAuthorizationRequest.get(OAuth2Utils.STATE))) {
+			return true;
+		}
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.getRedirectUri(),
+				originalAuthorizationRequest.get(OAuth2Utils.REDIRECT_URI))) {
+			return true;
+		}
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.getResponseTypes(),
+				originalAuthorizationRequest.get(OAuth2Utils.RESPONSE_TYPE))) {
+			return true;
+		}
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.getScope(),
+				originalAuthorizationRequest.get(OAuth2Utils.SCOPE))) {
+			return true;
+		}
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.isApproved(),
+				originalAuthorizationRequest.get("approved"))) {
+			return true;
+		}
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.getResourceIds(),
+				originalAuthorizationRequest.get("resourceIds"))) {
+			return true;
+		}
+		if (!ObjectUtils.nullSafeEquals(
+				authorizationRequest.getAuthorities(),
+				originalAuthorizationRequest.get("authorities"))) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private String getUnsuccessfulRedirect(AuthorizationRequest authorizationRequest, OAuth2Exception failure,
+										   boolean fragment) {
+
+		if (authorizationRequest == null || authorizationRequest.getRedirectUri() == null) {
+			// we have no redirect for the user. very sad.
+			throw new UnapprovedClientAuthenticationException("Authorization failure, and no redirect URI.", failure);
+		}
+
+		Map<String, String> query = new LinkedHashMap<String, String>();
+
+		query.put("error", failure.getOAuth2ErrorCode());
+		query.put("error_description", failure.getMessage());
+
+		if (authorizationRequest.getState() != null) {
+			query.put("state", authorizationRequest.getState());
+		}
+
+		if (failure.getAdditionalInformation() != null) {
+			for (Map.Entry<String, String> additionalInfo : failure.getAdditionalInformation().entrySet()) {
+				query.put(additionalInfo.getKey(), additionalInfo.getValue());
+			}
+		}
+
+		return append(authorizationRequest.getRedirectUri(), query, fragment);
+
+	}
+
+	private String append(String base, Map<String, ?> query, boolean fragment) {
+		return append(base, query, null, fragment);
+	}
+
+	private String append(String base, Map<String, ?> query, Map<String, String> keys, boolean fragment) {
+
+		UriComponentsBuilder template = UriComponentsBuilder.newInstance();
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(base);
+		URI redirectUri;
+		try {
+			// assume it's encoded to start with (if it came in over the wire)
+			redirectUri = builder.build(true).toUri();
+		}
+		catch (Exception e) {
+			// ... but allow client registrations to contain hard-coded non-encoded values
+			redirectUri = builder.build().toUri();
+			builder = UriComponentsBuilder.fromUri(redirectUri);
+		}
+		template.scheme(redirectUri.getScheme()).port(redirectUri.getPort()).host(redirectUri.getHost())
+				.userInfo(redirectUri.getUserInfo()).path(redirectUri.getPath());
+
+		if (fragment) {
+			StringBuilder values = new StringBuilder();
+			if (redirectUri.getFragment() != null) {
+				String append = redirectUri.getFragment();
+				values.append(append);
+			}
+			for (String key : query.keySet()) {
+				if (values.length() > 0) {
+					values.append("&");
+				}
+				String name = key;
+				if (keys != null && keys.containsKey(key)) {
+					name = keys.get(key);
+				}
+				values.append(name + "={" + key + "}");
+			}
+			if (values.length() > 0) {
+				template.fragment(values.toString());
+			}
+			UriComponents encoded = template.build().expand(query).encode();
+			builder.fragment(encoded.getFragment());
+		}
+		else {
+			for (String key : query.keySet()) {
+				String name = key;
+				if (keys != null && keys.containsKey(key)) {
+					name = keys.get(key);
+				}
+				template.queryParam(name, "{" + key + "}");
+			}
+			template.fragment(redirectUri.getFragment());
+			UriComponents encoded = template.build().expand(query).encode();
+			builder.query(encoded.getQuery());
+		}
+
+		return builder.build().toUriString();
+
 	}
 
 }

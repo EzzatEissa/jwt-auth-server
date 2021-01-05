@@ -1,7 +1,10 @@
 package com.sbm.config.security.service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -55,19 +59,32 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 		HttpSession userSession = request.getSession();
 		if(currentUrl != null && currentUrl.contains("original-url")) {
 			String externalUrl = currentUrl.split("original-url=")[1];
+			String serverUrl = getServerUrl(request);
+			String authorizeUrl = composeAuthorizeUrl(externalUrl, serverUrl);
+
 			location.append(externalUrl)
 					.append("&username=")
 					.append(user.getUsername())
 					.append("&confirmation=")
 					.append("AB");
 
+
+
+
+//			LOG.info("host host host host host host host " + host);
+
 			userSession.setAttribute("confirmation", "AB");
 			userSession.setAttribute("userName", user.getUsername());
 			System.out.println("currentUrl " + currentUrl);
+			userSession.setAttribute("externalUrl", location.toString());
 			LOG.info("currentUrl " + currentUrl);
 			System.out.println("Redirect location original = " + location.toString());
 			LOG.info("Redirect location original = " + location.toString());
-			redirectStrategy.sendRedirect(request, response, URLDecoder.decode( location.toString(), "UTF-8" ));
+//			redirectStrategy.sendRedirect(request, response, URLDecoder.decode( location.toString(), "UTF-8" ));
+			userSession.setAttribute("savedUrl",authorizeUrl);
+			redirectStrategy.sendRedirect(request, response, authorizeUrl);
+//			http://localhost:8080/oauth/authorize?response_type=code&client_id=d6492371-762b-4768-937f-6be6b3cec29f&scope=ReadAccountsBasic+ReadAccountsDetail&redirect_uri=https://www.info-tech.com/app-callback
+//			AuthorizationEndpoint
 		} else {
 			if(userSession != null && userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST") != null && !"".equals(userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST"))) {
 				SavedRequest previousSavedUrl = (SavedRequest)userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
@@ -94,5 +111,34 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 	public boolean isAuthenticated(){
 		return SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
 	}
+
+
+	private static Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
+		Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+		String[] pairs = query.split("&");
+		for (String pair : pairs) {
+			int idx = pair.indexOf("=");
+			query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+		}
+		return query_pairs;
+	}
+
+	private String getServerUrl(HttpServletRequest request){
+
+		StringBuffer url = request.getRequestURL();
+		String uri = request.getRequestURI();
+		String host = url.substring(0, url.indexOf(uri));
+
+		return host;
+	}
+
+	private String composeAuthorizeUrl(String url, String serverUrl) {
+		String authorizeUrl = "";
+		if(url != null && !url.isEmpty() && url.contains("?")) {
+			authorizeUrl = url.split("\\?")[1];
+		}
+		return serverUrl + "/oauth/authorize?" + authorizeUrl;
+	}
+
 
 }
