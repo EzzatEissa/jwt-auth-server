@@ -76,13 +76,13 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			userSession.setAttribute("confirmation", "AB");
 			userSession.setAttribute("userName", user.getUsername());
 			System.out.println("currentUrl " + currentUrl);
-			userSession.setAttribute("externalUrl", location.toString());
+			userSession.setAttribute("externalUrl", URLDecoder.decode( location.toString(), "UTF-8" ));
 			LOG.info("currentUrl " + currentUrl);
-			System.out.println("Redirect location original = " + location.toString());
-			LOG.info("Redirect location original = " + location.toString());
+			System.out.println("Redirect location original = " + URLDecoder.decode( location.toString(), "UTF-8" ));
+			LOG.info("Redirect location original = " + URLDecoder.decode( location.toString(), "UTF-8" ));
 //			redirectStrategy.sendRedirect(request, response, URLDecoder.decode( location.toString(), "UTF-8" ));
-			userSession.setAttribute("savedUrl",authorizeUrl);
-			redirectStrategy.sendRedirect(request, response, authorizeUrl);
+			userSession.setAttribute("savedUrl",URLDecoder.decode( authorizeUrl.toString(), "UTF-8" ));
+			redirectStrategy.sendRedirect(request, response, URLDecoder.decode( authorizeUrl.toString(), "UTF-8" ));
 //			http://localhost:8080/oauth/authorize?response_type=code&client_id=d6492371-762b-4768-937f-6be6b3cec29f&scope=ReadAccountsBasic+ReadAccountsDetail&redirect_uri=https://www.info-tech.com/app-callback
 //			AuthorizationEndpoint
 		} else {
