@@ -81,6 +81,8 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 			System.out.println("Redirect location original = " + URLDecoder.decode( location.toString(), "UTF-8" ));
 			LOG.info("Redirect location original = " + URLDecoder.decode( location.toString(), "UTF-8" ));
 //			redirectStrategy.sendRedirect(request, response, URLDecoder.decode( location.toString(), "UTF-8" ));
+
+			LOG.info("Redirect location original = " + URLDecoder.decode( authorizeUrl.toString(), "UTF-8" ));
 			userSession.setAttribute("savedUrl",URLDecoder.decode( authorizeUrl.toString(), "UTF-8" ));
 			redirectStrategy.sendRedirect(request, response, URLDecoder.decode( authorizeUrl.toString(), "UTF-8" ));
 //			http://localhost:8080/oauth/authorize?response_type=code&client_id=d6492371-762b-4768-937f-6be6b3cec29f&scope=ReadAccountsBasic+ReadAccountsDetail&redirect_uri=https://www.info-tech.com/app-callback
@@ -128,15 +130,18 @@ public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHan
 		StringBuffer url = request.getRequestURL();
 		String uri = request.getRequestURI();
 		String host = url.substring(0, url.indexOf(uri));
-
+		LOG.info("------------------------getServerUrl ------------------ "+ host);
 		return host;
 	}
 
 	private String composeAuthorizeUrl(String url, String serverUrl) {
 		String authorizeUrl = "";
+		LOG.info("------------------------Url Url Url Url ------------------ "+ url);
 		if(url != null && !url.isEmpty() && url.contains("?")) {
 			authorizeUrl = url.split("\\?")[1];
 		}
+
+		LOG.info("------------------------composeAuthorizeUrl ------------------ "+ authorizeUrl);
 		return serverUrl + "/oauth/authorize?" + authorizeUrl;
 	}
 
