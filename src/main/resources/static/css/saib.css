@@ -13,22 +13,29 @@
 
 .outer-card {
     background-color: #FDCD02;
-    padding: 30px;
+    padding: 5px;
     border-radius:10px;
 }
 
 .verify-outer-card {
     background-color: #FDCD02;
-    padding: 30px;
+    padding: 5px;
     border-radius:10px;
     width: 35%;
 }
 
-
-
-.btn{
+.confirm-outer-card{
     background-color: #FDCD02;
+    padding: 5px;
+    border-radius:10px;
+    width: 50%;
 }
+
+
+
+/*.btn{*/
+    /*background-color: #FDCD02;*/
+/*}*/
 
 input:focus, textarea:focus{
     border-top: 1px solid #DEE4E8 !important;

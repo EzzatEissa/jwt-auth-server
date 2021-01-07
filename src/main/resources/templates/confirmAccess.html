@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <title>Verify Login</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"  href="../static/css/bootstrap.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/bootstrap-select.css}"  href="../static/css/bootstrap.min.css"/>
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/bootstrap-select.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/saib.css}" href="../static/css/saib.css"/>
+
+    <script>
+        $(function() {
+            $('select').selectpicker();
+
+            $('#authorizeBtn').click( function(e) {
+
+                if ($('#accounts').val() == null) {
+                    $('#modalMessage').modal('toggle');
+                    e.preventDefault();
+                } else {
+                    $('#user_oauth_approval').val("true");
+                    $('#selected-accounts').val($('#accounts').val().join(", "));
+                }
+            });
+
+            $('#denyBtn').click( function(e) {
+                $('#user_oauth_approval').val("false");
+            });
+        });
+    </script>
+</head>
+<body class="login-body">
+
+
+
+
+<section class="h-100">
+    <div class="container h-150">
+        <div class="row mt-5">
+            <div class="col text-center">
+                <p class="badge badge-warning font-weight-bold" style="font-size: 1.1rem;">Consent Approval</p>
+            </div>
+        </div>
+        <div class="row justify-content-md-center h-150">
+            <div class="card-wrapper confirm-outer-card">
+                <div class="card fat">
+                    <div class="card-body">
+
+                        <form id="confirmationForm" name="confirmationForm" action="/oauth/user-authorize"
+                              method="post" th:action="@{/oauth/user-authorize}">
+                            <label for="accounts">Choose a account:</label>
+
+                            <select id="accounts" multiple data-live-search="true">
+                                <option th:each="account : ${accounts}" th:value="${account.AccountId}"
+                                        th:text="${account.AccountId}"></option>
+                            </select>
+                            <p th:text="${'Do you authorize [' + clientId + '] to access your protected resources?'}"></p>
+                            <ul>
+                                <li th:each="scope : ${scopes}">
+                                    <p th:text="${scope}"></p>
+                                </li>
+                            </ul>
+
+                            <input name="user_oauth_approval" id = "user_oauth_approval" value="true" type="hidden"/>
+                            <input name="accounts" id = "selected-accounts" type="hidden"/>
+                            <div class="row">
+
+                                <div class="col">
+                                    <div class="form-group m-0">
+                                        <button name="authorize" value="Authorize" id = "authorizeBtn" type="submit" class="btn btn-warning">Authorize
+                                        </button>
+                                        <button name="deny" value="Deny" type="submit" id = "denyBtn" class="btn btn-danger">Deny</button>
+                                    </div>
+
+                                </div>
+                                <!--<div class="col"></div>-->
+                            </div>
+
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</form>
+
+<div class="modal fade" id="modalMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Error Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>you have to select at least one account</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

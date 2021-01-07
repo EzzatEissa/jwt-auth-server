@@ -12,8 +12,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/login").setViewName("login");
         registry.addViewController("/secure/two_factor_authentication").setViewName("loginSecret");
+        registry.addViewController("/oauth/confirm_access").setViewName("loginSecret");
     }
-
-
-    
 }

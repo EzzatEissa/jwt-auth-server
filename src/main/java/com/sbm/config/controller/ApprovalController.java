@@ -1,6 +1,9 @@
 package com.sbm.config.controller;
 
-import org.springframework.http.HttpStatus;
+import com.sbm.config.security.TwoFactorAuthenticationFilter;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.http.*;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.common.exceptions.InvalidRequestException;
@@ -13,12 +16,12 @@ import org.springframework.security.oauth2.provider.approval.DefaultUserApproval
 import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,11 +33,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @SessionAttributes({ApprovalController.AUTHORIZATION_REQUEST_ATTR_NAME, ApprovalController.ORIGINAL_AUTHORIZATION_REQUEST_ATTR_NAME})
@@ -46,31 +48,6 @@ public class ApprovalController{
 	static final String ORIGINAL_AUTHORIZATION_REQUEST_ATTR_NAME = "org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint.ORIGINAL_AUTHORIZATION_REQUEST";
 
 	private UserApprovalHandler userApprovalHandler = new DefaultUserApprovalHandler();
-
-	@RequestMapping("/oauth/confirm_access")
-	public ModelAndView getAccessConfirmation(Map<String, Object> model, HttpServletRequest request) throws Exception {
-		final String approvalContent = createTemplate(model, request);
-		if (request.getAttribute("_csrf") != null) {
-			model.put("_csrf", request.getAttribute("_csrf"));
-		}
-		View approvalView = new View() {
-			@Override
-			public String getContentType() {
-				return "text/html";
-			}
-
-			@Override
-			public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-				response.setContentType(getContentType());
-				response.getWriter().append(approvalContent);
-			}
-		};
-		ModelAndView modelView = new ModelAndView(approvalView, model);
-		modelView.setStatus(HttpStatus.MOVED_PERMANENTLY);
-//		AuthorizationEndpoint
-		return modelView;
-	}
-
 
 	@RequestMapping(value = "/oauth/user-authorize", method = RequestMethod.POST, params = OAuth2Utils.USER_OAUTH_APPROVAL)
 	public View approveOrDeny(@RequestParam Map<String, String> approvalParameters, Map<String, ?> model,
@@ -118,10 +95,20 @@ public class ApprovalController{
 			}
 
 //			httpServletResponse.setHeader("Location", "www.google.com");
-			httpServletResponse.setStatus(302);
+
+			if(approvalParameters.get(OAuth2Utils.USER_OAUTH_APPROVAL).toString().equals("true")) {
+				httpServletResponse.setStatus(302);
+			} else {
+				httpServletResponse.setStatus(500);
+			}
 			String externalUrl = (String)httpSession.getAttribute("externalUrl");
-			return new RedirectView(externalUrl,
-					false, true, false);
+			if(externalUrl != null) {
+				return new RedirectView(externalUrl,
+						false, true, false);
+			} else {
+				return new RedirectView(getServerUrl(request),
+						false, true, false);
+			}
 		}
 		finally {
 			sessionStatus.setComplete();
@@ -129,7 +116,48 @@ public class ApprovalController{
 
 	}
 
-	
+
+	@RequestMapping("/oauth/confirm_access")
+	public String getAccessConfirmation(Map<String, Object> model, HttpServletRequest request, Model mdl) throws Exception {
+
+		AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get("authorizationRequest");
+		String clientId = authorizationRequest.getClientId();
+		Set<String> scopes = null;
+		if (model.containsKey("scope") || request.getAttribute("scope") != null) {
+			scopes = authorizationRequest.getScope();
+		}
+
+		mdl.addAttribute("clientId", clientId);
+		mdl.addAttribute("scopes", scopes);
+		mdl.addAttribute("accounts", ((Map)getAccounts().get("Data")).get("Account"));
+		return "confirmAccess";
+	}
+
+	private Map getAccounts() {
+		Map resJson = null;
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+//		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("mock", "true");
+
+		HttpEntity<String> entity = new HttpEntity<>("body", headers);
+
+		ResponseEntity<String> res= restTemplate.exchange("https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/accounts", HttpMethod.GET, entity, String.class);
+
+
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			resJson = mapper.readValue(res.getBody(), HashMap.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+		return resJson;
+	}
+
+
 	protected String createTemplate(Map<String, Object> model, HttpServletRequest request) {
 		AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get("authorizationRequest");
 		String clientId = authorizationRequest.getClientId();
@@ -334,4 +362,12 @@ public class ApprovalController{
 
 	}
 
+	private String getServerUrl(HttpServletRequest request){
+
+		StringBuffer url = request.getRequestURL();
+		String uri = request.getRequestURI();
+		String host = url.substring(0, url.indexOf(uri));
+		return host;
+	}
 }
+
