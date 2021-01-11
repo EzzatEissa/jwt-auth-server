@@ -1,8 +1,11 @@
 package com.sbm.config.controller;
 
 import com.sbm.config.security.TwoFactorAuthenticationFilter;
+import com.sbm.config.security.controller.UserSecurityController;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
@@ -48,6 +51,8 @@ public class ApprovalController{
 	static final String ORIGINAL_AUTHORIZATION_REQUEST_ATTR_NAME = "org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint.ORIGINAL_AUTHORIZATION_REQUEST";
 
 	private UserApprovalHandler userApprovalHandler = new DefaultUserApprovalHandler();
+
+	private static final Logger LOG = LoggerFactory.getLogger(UserSecurityController.class);
 
 	@RequestMapping(value = "/oauth/user-authorize", method = RequestMethod.POST, params = OAuth2Utils.USER_OAUTH_APPROVAL)
 	public View approveOrDeny(@RequestParam Map<String, String> approvalParameters, Map<String, ?> model,
@@ -102,6 +107,7 @@ public class ApprovalController{
 				httpServletResponse.setStatus(500);
 			}
 			String externalUrl = (String)httpSession.getAttribute("externalUrl");
+			LOG.info("********************External server url**** "+ externalUrl+ " *********************************************");
 			if(externalUrl != null) {
 				return new RedirectView(externalUrl,
 						false, true, false);
