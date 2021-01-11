@@ -84,7 +84,7 @@ public class UserSecurityController {
         UserAuthDto userAuthDto = userSecurityService.userLogin(userCredential.get("username"), userCredential.get("password"));
 
         if(userAuthDto.getSuccessLogin()) {
-            userSecurityService.setAuthUrlsToSessions(userCredential.get("userName"), response, request);
+            userSecurityService.setAuthUrlsToSessions(userCredential.get("username"), response, request);
         }
 
         if(userAuthDto.getSuccessLogin() && userAuthDto.getSecondFactorEnabled()){
