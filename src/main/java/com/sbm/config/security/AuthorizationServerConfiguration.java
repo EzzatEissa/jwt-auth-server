@@ -40,34 +40,38 @@ import com.sbm.config.security.token.CustomTokenEnhancer;
 @EnableConfigurationProperties(SecurityProperties.class)
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
-	@Autowired
-	private final DataSource dataSource;
-	@Autowired
+    @Autowired
+    private final DataSource dataSource;
+
+    @Autowired
     private final PasswordEncoder passwordEncoder;
-    
-    @Autowired
-    @Qualifier("authenticationManagerBean")
-    private final AuthenticationManager authenticationManager;
-    
+
+//    @Autowired
+//    @Qualifier("authenticationManagerBean")
+//    private final AuthenticationManager authenticationManager;
+
     private final SecurityProperties securityProperties;
-    
-    @Autowired
-    private final UserDetailsService userDetailsService;
+
+//    @Autowired
+//    private final UserDetailsService userDetailsService;
 
     private JwtAccessTokenConverter jwtAccessTokenConverter;
     private TokenStore tokenStore;
-    
+
     @Autowired
     private ClientDetailsService clientDetailsService;
-   
-    public AuthorizationServerConfiguration(final DataSource dataSource, final PasswordEncoder passwordEncoder,
-                                            final AuthenticationManager authenticationManager, final SecurityProperties securityProperties,
-                                            final UserDetailsService userDetailsService) {
+
+    public AuthorizationServerConfiguration(final DataSource dataSource,
+                                            final PasswordEncoder passwordEncoder,
+//                                            final AuthenticationManager authenticationManager,
+                                            final SecurityProperties securityProperties
+//                                            final UserDetailsService userDetailsService
+    ) {
         this.dataSource = dataSource;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
+//        this.authenticationManager = authenticationManager;
         this.securityProperties = securityProperties;
-        this.userDetailsService = userDetailsService;
+//        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -85,10 +89,10 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         tokenServices.setSupportRefreshToken(true);
         tokenServices.setTokenStore(tokenStore);
         tokenServices.setClientDetailsService(clientDetailsService);
-        tokenServices.setAuthenticationManager(this.authenticationManager);
+//        tokenServices.setAuthenticationManager(this.authenticationManager);
         return tokenServices;
     }
-  
+
 
     @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
@@ -103,10 +107,10 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         jwtAccessTokenConverter.setKeyPair(keyPair);
         return jwtAccessTokenConverter;
     }
-    
+
     @Bean
     UserApprovalHandler userApprovalHandler() {
-       return new CustomUserApprovalHandler();
+        return new CustomUserApprovalHandler();
     }
 
     @Override
@@ -116,27 +120,29 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(final AuthorizationServerEndpointsConfigurer endpoints) {
-    	
-    	TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-    	List<TokenEnhancer> tokenEnhancers = new ArrayList<TokenEnhancer>();
-    	tokenEnhancers.add(new CustomTokenEnhancer());
-    	tokenEnhancers.add(jwtAccessTokenConverter);
+
+        TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
+        List<TokenEnhancer> tokenEnhancers = new ArrayList<TokenEnhancer>();
+        tokenEnhancers.add(new CustomTokenEnhancer());
+        tokenEnhancers.add(jwtAccessTokenConverter);
         tokenEnhancerChain.setTokenEnhancers(tokenEnhancers);
-        
-        endpoints.authenticationManager(this.authenticationManager)
-                .accessTokenConverter(jwtAccessTokenConverter())
-                .userDetailsService(this.userDetailsService)
+
+//        endpoints.authenticationManager(this.authenticationManager)
+        endpoints.accessTokenConverter(jwtAccessTokenConverter())
+//                .userDetailsService(this.userDetailsService)
                 .tokenEnhancer(tokenEnhancerChain)
                 .tokenStore(tokenStore());
-        
+
         DefaultOAuth2RequestFactory factory =
                 new DefaultOAuth2RequestFactory(clientDetailsService);
-            factory.setCheckUserScopes(true);
 
-            endpoints
+        //to check scope with user permission
+//        factory.setCheckUserScopes(true);
+
+        endpoints
                 .requestFactory(factory);
-            
-            endpoints.userApprovalHandler(userApprovalHandler());        
+
+        endpoints.userApprovalHandler(userApprovalHandler());
     }
 
     @Override

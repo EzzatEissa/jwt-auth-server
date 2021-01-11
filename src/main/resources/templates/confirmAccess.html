@@ -40,7 +40,7 @@
     <div class="container h-150">
         <div class="row mt-5">
             <div class="col text-center">
-                <p class="badge badge-warning font-weight-bold" style="font-size: 1.1rem;">Consent Approval</p>
+                <p class="badge badge-move font-weight-bold" style="font-size: 1.1rem;">Consent Approval</p>
             </div>
         </div>
         <div class="row justify-content-md-center h-150">
@@ -50,13 +50,13 @@
 
                         <form id="confirmationForm" name="confirmationForm" action="/oauth/user-authorize"
                               method="post" th:action="@{/oauth/user-authorize}">
-                            <label for="accounts">Choose a account:</label>
+                            <label for="accounts">Select account(s):</label>
 
                             <select id="accounts" multiple data-live-search="true">
                                 <option th:each="account : ${accounts}" th:value="${account.AccountId}"
-                                        th:text="${account.AccountId}"></option>
+                                        th:text="${account.AccountId + ' - ' + account.AccountType}"></option>
                             </select>
-                            <p th:text="${'Do you authorize [' + clientId + '] to access your protected resources?'}"></p>
+                            <p th:text="${clientId +' Application is requesting access to your accounts'}"></p>
                             <ul>
                                 <li th:each="scope : ${scopes}">
                                     <p th:text="${scope}"></p>
@@ -69,7 +69,7 @@
 
                                 <div class="col">
                                     <div class="form-group m-0">
-                                        <button name="authorize" value="Authorize" id = "authorizeBtn" type="submit" class="btn btn-warning">Authorize
+                                        <button name="authorize" value="Authorize" id = "authorizeBtn" type="submit" class="btn btn-move">Authorize
                                         </button>
                                         <button name="deny" value="Deny" type="submit" id = "denyBtn" class="btn btn-danger">Deny</button>
                                     </div>

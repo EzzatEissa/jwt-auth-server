@@ -29,7 +29,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 public class UrlAuthenticationSuccessHandler implements AuthenticationSuccessHandler  {
 
 	private static final Logger LOG = LoggerFactory.getLogger(UrlAuthenticationSuccessHandler.class);
-	public static final String REDIRECT_PATH = "/secure/two_factor_authentication";
+	public static final String REDIRECT_PATH = "/user/two_factor_authentication";
 
 	@Autowired
 	private UserService userService;

@@ -9,14 +9,16 @@ import org.springframework.stereotype.Service;
 import com.sbm.modules.consent.repository.UserRepo;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService{
-
-	@Autowired
-	private UserRepo userRepo;
-	
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return userRepo.findByUserName(username);
-	}
+public class UserDetailsServiceImpl
+//		implements UserDetailsService
+{
+//
+//	@Autowired
+//	private UserRepo userRepo;
+//
+//	@Override
+//	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//		return userRepo.findByUserName(username);
+//	}
 
 }

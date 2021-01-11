@@ -12,20 +12,20 @@
 
 
 .outer-card {
-    background-color: #FDCD02;
+    background-color: #280091;
     padding: 5px;
     border-radius:10px;
 }
 
 .verify-outer-card {
-    background-color: #FDCD02;
+    background-color: #280091;
     padding: 5px;
     border-radius:10px;
     width: 35%;
 }
 
 .confirm-outer-card{
-    background-color: #FDCD02;
+    background-color: #280091;
     padding: 5px;
     border-radius:10px;
     width: 50%;
@@ -36,6 +36,9 @@
 /*.btn{*/
     /*background-color: #FDCD02;*/
 /*}*/
+
+.btn-move{background-color:#280091;color: #FFF;}
+.btn-move:hover{color: #FFF;}
 
 input:focus, textarea:focus{
     border-top: 1px solid #DEE4E8 !important;
@@ -65,8 +68,8 @@ input[type="search"]:focus,
 input[type="tel"]:focus,
 input[type="color"]:focus,
 .uneditable-input:focus {
-    border-color: #FDCD02;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px #FDCD02;
+    border-color: #280091;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px #280091;
     outline: 0 none;
 }
 
@@ -77,9 +80,16 @@ input[type="color"]:focus,
 }
 
 .login-body {
-    background: url('../images/saib2.jpg');
+    /*background: url('../images/saib2.jpg');*/
+    background-color: #280091;
 }
 
 .verify-body {
-    background: url('../images/saib2.jpg');
+    /*background: url('../images/saib2.jpg');*/
+    background-color: #280091;
+}
+
+.badge-move {
+    color: #FFFFFF;
+    background-color: #280091;
 }

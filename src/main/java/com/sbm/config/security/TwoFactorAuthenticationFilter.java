@@ -32,25 +32,25 @@ public class TwoFactorAuthenticationFilter extends OncePerRequestFilter {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     public static final String ROLE_TWO_FACTOR_AUTHENTICATED = "ROLE_TWO_FACTOR_AUTHENTICATED";
-	public static final String REDIRECT_PATH = "/secure/two_factor_authentication";
+	public static final String REDIRECT_PATH = "/user/two_factor_authentication";
     @Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth != null
-				&& !(auth instanceof AnonymousAuthenticationToken)
-				&& auth.isAuthenticated()
-				&& !hasAuthority(ROLE_TWO_FACTOR_AUTHENTICATED)) {
-
-			if(!request.getRequestURL().toString().contains(REDIRECT_PATH)
-					&& !request.getRequestURL().toString().contains("/css/")
-					&& !request.getRequestURL().toString().contains("/images")) {
-				redirectStrategy.sendRedirect(request, response, REDIRECT_PATH);
-				return;
-			}
-        }
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (auth != null
+//				&& !(auth instanceof AnonymousAuthenticationToken)
+//				&& auth.isAuthenticated()
+//				&& !hasAuthority(ROLE_TWO_FACTOR_AUTHENTICATED)) {
+//
+//			if(!request.getRequestURL().toString().contains(REDIRECT_PATH)
+//					&& !request.getRequestURL().toString().contains("/css/")
+//					&& !request.getRequestURL().toString().contains("/images")) {
+//				redirectStrategy.sendRedirect(request, response, REDIRECT_PATH);
+//				return;
+//			}
+//        }
 
 		filterChain.doFilter(request, response);
 	}

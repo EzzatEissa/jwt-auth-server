@@ -32,9 +32,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private PasswordEncoder passwordEncoder;
     
-    @Autowired
-    @Qualifier("userDetailsServiceImpl")
-    private UserDetailsService userDetailsService;
+//    @Autowired
+//    @Qualifier("userDetailsServiceImpl")
+//    private UserDetailsService userDetailsService;
 
     @Value("${ui.url}")
     private String uiUrl;
@@ -49,11 +49,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .antMatcher("/**")
                 .authorizeRequests()
-                .antMatchers("/api/**", "/admin/**", "/h2-console/**", "/user/status","/css/**","/resourses/**","/images/**", "/login**","/secure/two_factor_authentication", "/oauth/authorize**", "/oauth/confirm_access**","/confirm", "/error**")
+                .antMatchers("/api/**", "/admin/**", "/h2-console/**", "/user/status","/css/**", "/js/**","/resourses/**","/images/**", "/user/**login**","/user/two_factor_authentication", "/user/second-factor", "/oauth/authorize**", "/oauth/confirm_access**","/confirm", "/error**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-                .and().formLogin().loginPage("/login").failureUrl("/login?error").successHandler(myAuthenticationSuccessHandler())
+                .and().formLogin().loginPage("/user/login").failureUrl("/user/login?error").successHandler(myAuthenticationSuccessHandler())
                 .permitAll().and().logout().permitAll();
     }
 
@@ -77,17 +77,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new UrlAuthenticationSuccessHandler();
     }
     
-    @Override
-    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(this.userDetailsService)
-                .passwordEncoder(passwordEncoder());
-    }
+//    @Override
+//    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+//        auth.userDetailsService(this.userDetailsService)
+//                .passwordEncoder(passwordEncoder());
+//    }
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+//    @Bean
+//    @Override
+//    public AuthenticationManager authenticationManagerBean() throws Exception {
+//        return super.authenticationManagerBean();
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

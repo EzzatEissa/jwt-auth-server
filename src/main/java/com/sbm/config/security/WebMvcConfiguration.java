@@ -10,8 +10,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/secure/two_factor_authentication").setViewName("loginSecret");
-        registry.addViewController("/oauth/confirm_access").setViewName("loginSecret");
+        registry.addViewController("/user/login").setViewName("login");
+        registry.addViewController("/user/two_factor_authentication").setViewName("loginSecret");
+        registry.addViewController("/oauth/confirm_access").setViewName("confirmAccess");
+//        registry.addViewController("/user/user-login").setViewName("secondFactorTypes");
     }
 }
