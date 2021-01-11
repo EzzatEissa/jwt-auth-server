@@ -81,7 +81,7 @@ public class UserSecurityController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/userlogin")
     public String userLogin(@RequestParam Map<String, String> userCredential, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception{
-        UserAuthDto userAuthDto = userSecurityService.userLogin(userCredential.get("userName"), userCredential.get("password"));
+        UserAuthDto userAuthDto = userSecurityService.userLogin(userCredential.get("username"), userCredential.get("password"));
 
         if(userAuthDto.getSuccessLogin()) {
             userSecurityService.setAuthUrlsToSessions(userCredential.get("userName"), response, request);
