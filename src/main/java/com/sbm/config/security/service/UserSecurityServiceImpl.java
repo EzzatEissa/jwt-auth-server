@@ -212,6 +212,8 @@ public class UserSecurityServiceImpl implements UserSecurityService {
                 //http://localhost:8080/oauth/authorize?response_type=code&client_id=d6492371-762b-4768-937f-6be6b3cec29f&scope=ReadAccountsBasic+ReadAccountsDetail&redirect_uri=https://www.info-tech.com/app-callback
 
             } else {
+                userSession.setAttribute("confirmation", "AB");
+                userSession.setAttribute("userName", userName);
                 userSession.setAttribute("savedUrl",URLDecoder.decode( oldUrl.toString(), "UTF-8" ));
             }
 
