@@ -83,7 +83,7 @@ public class CheckConfirmController {
 
                  LOG.info("************************************* confirmCode " + confirmCode +"**************************************************");
 
-                 if(userName.equals("11112222") && confirmCode.equals("AB")) {
+                 if(confirmCode.equals("AB")) {
                      LOG.info("************************************* Confirmed successfully**************************************************");
                      return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
                  }
