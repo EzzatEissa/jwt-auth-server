@@ -84,6 +84,7 @@ public class CheckConfirmController {
                  LOG.info("************************************* confirmCode " + confirmCode +"**************************************************");
 
                  if(confirmCode.equals("AB")) {
+                     LOG.info("************************************* Confirmed successfully u c **************************************************");
                      LOG.info("************************************* Confirmed successfully**************************************************");
                      return new ResponseEntity<String>("Confirmed successfully", HttpStatus.OK);
                  }
