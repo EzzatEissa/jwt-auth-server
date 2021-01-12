@@ -109,6 +109,7 @@ public class ApprovalController{
 			String externalUrl = (String)httpSession.getAttribute("externalUrl");
 			LOG.info("********************External server url**** "+ externalUrl+ "*********************************************");
 			if(externalUrl != null) {
+				LOG.info("********************External server url done --- **** "+ externalUrl+ "*********************************************");
 				return new RedirectView(externalUrl,
 						false, true, false);
 			} else {
