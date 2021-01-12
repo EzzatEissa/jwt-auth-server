@@ -79,7 +79,7 @@ public class ApprovalController{
 			throw new InvalidRequestException("Changes were detected from the original authorization request.");
 		}
 
-		try {
+//		try {
 			Set<String> responseTypes = authorizationRequest.getResponseTypes();
 
 			authorizationRequest.setApprovalParameters(approvalParameters);
@@ -107,7 +107,7 @@ public class ApprovalController{
 				httpServletResponse.setStatus(500);
 			}
 			String externalUrl = (String)httpSession.getAttribute("externalUrl");
-			LOG.info("********************External server url**** "+ externalUrl+ " *********************************************");
+			LOG.info("********************External server url**** "+ externalUrl+ "*********************************************");
 			if(externalUrl != null) {
 				return new RedirectView(externalUrl,
 						false, true, false);
@@ -115,10 +115,10 @@ public class ApprovalController{
 				return new RedirectView(getServerUrl(request),
 						false, true, false);
 			}
-		}
-		finally {
-			sessionStatus.setComplete();
-		}
+//		}
+//		finally {
+//			sessionStatus.setComplete();
+//		}
 
 	}
 
