@@ -1,92 +1,100 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
->
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Verify Login</title>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" href="../static/css/bootstrap.min.css"/>
-    <link rel="stylesheet" th:href="@{/css/bootstrap-select.css}" href="../static/css/bootstrap.min.css"/>
-    <script th:src="@{/js/jquery.min.js}"></script>
-    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
-    <script th:src="@{/js/bootstrap-select.min.js}"></script>
-    <script th:src="@{/js/font-awesome.js}"></script>
-    <link rel="stylesheet" th:href="@{/css/saib.css}" href="../static/css/saib.css"/>
-    <link rel="stylesheet" th:href="@{/css/modern-radio.css}" href="../static/css/saib.css"/>
+<title>Verify Login</title>
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+<link rel="stylesheet" th:href="@{/css/bootstrap-select.css}" />
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/bootstrap-select.min.js}"></script>
+<script th:src="@{/js/font-awesome.js}"></script>
+<link rel="stylesheet" th:href="@{/css/style.css}" />
+<link rel="stylesheet" th:href="@{/css/modern-radio.css}" />
 
 
-    <script>
-        $(function () {
-           $('.second-factor-type').click(function() {
-                $('#second-factor-type').submit();
-           });
-        });
-    </script>
+<script>
+	$(function() {
+		$('.second-factor-type').click(function() {
+			$('#second-factor-type').submit();
+		});
+	});
+</script>
 </head>
 <body class="login-body">
 
 
-<section class="h-100">
-    <div class="container h-150">
-        <div class="row justify-content-md-center h-150 mt-5">
-            <div class="card-wrapper confirm-outer-card">
-                <div class="card fat">
-                    <div class="card-body">
+	<section class="h-100">
+		<div class="container h-150">
+			<div class="row text-center">
+				<div class="col">
+					<img class="login-logo" height="122" width="412" />
+				</div>
+			</div>
+			<div class="row justify-content-md-center h-150 mt-5">
+				<div class="card-wrapper confirm-outer-card">
+					<div class="card fat">
+						<div class="card-body">
 
-                        <form id="second-factor-type" name="secondFactorType" action="/user/second-factor"
-                              method="post" th:action="@{/user/second-factor}">
+							<form id="second-factor-type" name="secondFactorType"
+								action="/user/second-factor" method="post"
+								th:action="@{/user/second-factor}">
 
-                            <div class="row">
-                                <div class="col">
-                                    <p class="font-weight-bold badge badge-move" style="font-size: 1.1rem;">
-                                        Please select authentication method
-                                    </p>
-                                </div>
-                            </div>
+								<div class="row">
+									<div class="col">
+										<p class="font-weight-bold badge badge-move"
+											style="font-size: 1.1rem;">Please select authentication
+											method</p>
+									</div>
+								</div>
 
-                            <div class="row">
-                                <div class="col second-factor-type" th:each="secondFactorType : ${secondFactorTypes}">
-                                    <input type="radio" name="secondFactorType" th:id="${secondFactorType}" th:value="${secondFactorType}">
-                                    <label th:for="${secondFactorType}">
-                                        <i th:if="${secondFactorType == 'SMS_PRIMARY'}" class="fa fa-sms fa-5x"
-                                           aria-hidden="true"></i>
-                                        <i th:if="${secondFactorType == 'OFFLINE'}" class="fa fa-asterisk"
-                                           aria-hidden="true"></i>
-                                        <i th:if="${secondFactorType == 'OFFLINE'}" class="fa fa-asterisk"
-                                           aria-hidden="true"></i>
-                                        <i th:if="${secondFactorType == 'OFFLINE'}" class="fa fa-asterisk"
-                                           aria-hidden="true"></i>
-                                        <span th:if="${secondFactorType == 'OFFLINE'}" th:text="${secondFactorType}">Offline Token</span>
+								<div class="row">
+									<div class="col second-factor-type"
+										th:each="secondFactorType : ${secondFactorTypes}">
+										<input type="radio" name="secondFactorType"
+											th:id="${secondFactorType}" th:value="${secondFactorType}">
+										<label th:for="${secondFactorType}"> <i
+											th:if="${secondFactorType == 'SMS_PRIMARY'}"
+											class="fa fa-sms fa-5x" aria-hidden="true"></i> <i
+											th:if="${secondFactorType == 'SOFT_TOKEN'}"
+											class="fa fa-asterisk" aria-hidden="true"></i> <i
+											th:if="${secondFactorType == 'SOFT_TOKEN'}"
+											class="fa fa-asterisk" aria-hidden="true"></i> <i
+											th:if="${secondFactorType == 'SOFT_TOKEN'}"
+											class="fa fa-asterisk" aria-hidden="true"></i> 
+											<span th:if="${secondFactorType == 'SOFT_TOKEN'}">Soft Token</span> 
+											<span th:if="${secondFactorType == 'SMS_PRIMARY'}">SMS</span>
+										</label>
+									</div>
+								</div>
 
-                                        <span th:if="${secondFactorType == 'SMS_PRIMARY'}">SMS</span>
-                                    </label>
-                                </div>
-                            </div>
 
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	</form>
 
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-</form>
-
-<div class="modal fade" id="modalMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Error Message</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>you have to select at least one account</p>
-            </div>
-        </div>
-    </div>
-</div>
+	<div class="modal fade" id="modalMessage" tabindex="-1" role="dialog"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Error Message</h5>
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>you have to select at least one account</p>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
 </body>

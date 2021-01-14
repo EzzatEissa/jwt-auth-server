@@ -40,6 +40,10 @@
 .btn-move{background-color:#280091;color: #FFF;}
 .btn-move:hover{color: #FFF;}
 
+.btn-green{background-color:#009987;color: #FFF;}
+.btn-green:hover{background-color: #72d6cb}
+
+
 input:focus, textarea:focus{
     border-top: 1px solid #DEE4E8 !important;
     border-right: 1px solid #DEE4E8 !important;
@@ -92,4 +96,8 @@ input[type="color"]:focus,
 .badge-move {
     color: #FFFFFF;
     background-color: #280091;
+}
+
+.form-check-label{
+	font-weight: bold;
 }

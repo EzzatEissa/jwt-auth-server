@@ -22,6 +22,9 @@ label{
     color: #280091;
     transition: 0.5s;
 }
+label:hover{
+    background-color: #009987;
+}
 .fa{
     font-size: 80px;
     position: absolute;
@@ -30,7 +33,7 @@ label{
     transform: translate(-50%,-80%);
 }
 label>span{
-    font-size: 25px;
+    font-size: 20px;
     position: absolute;
     top:50%;
     left: 50%;

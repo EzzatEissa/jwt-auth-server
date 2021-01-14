@@ -1,21 +1,23 @@
 package com.sbm.config.security.service;
 
-import com.sbm.common.dto.UserAuthDto;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+
+import com.sbm.common.dto.UserAuthDto;
 
 /**
  * Created by EzzatEissa on 1/7/2021.
  */
 public interface UserSecurityService {
 
-    UserAuthDto userLogin(String userName, String password);
+	UserAuthDto userLogin(String userName, String password, HttpServletRequest request);
 
-    List<String> getSecondFactorTypes();
+	List<String> getSecondFactorTypes();
 
-    Boolean validateSecondFactor(String confirmCode);
+	Boolean validateSecondFactor(String confirmCode);
 
-    void setAuthUrlsToSessions(String userName, HttpServletResponse response, HttpServletRequest request) throws Exception;
+	void setAuthUrlsToSessions(String userName, HttpServletResponse response, HttpServletRequest request)
+			throws Exception;
 }
