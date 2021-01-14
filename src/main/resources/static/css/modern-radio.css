@@ -9,7 +9,7 @@
     /*width: 100vw;*/
     /*display: flex;*/
 /*}*/
-input[type="radio"]{
+/* input[type="radio"]{
     -webkit-appearance:none;
 }
 label{
@@ -45,4 +45,4 @@ input[type="radio"]:checked + label{
     background-color: #280091;
     color: white;
     box-shadow: 0 15px 45px rgba(236, 249, 16, 0.3);
-}
+} */
