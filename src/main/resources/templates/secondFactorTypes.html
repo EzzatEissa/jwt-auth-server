@@ -15,8 +15,8 @@
 
 <script>
 	$(function() {
-		$('.second-factor-type').click(function() {
-			$('#second-factor-type').submit();
+		$('input[name=secondFactorType]').change(function() {
+		  $('#second-factor-type').submit();
 		});
 	});
 </script>
@@ -32,47 +32,61 @@
 				</div>
 			</div>
 			<div class="row justify-content-md-center h-150 mt-5">
-				<div class="card-wrapper confirm-outer-card">
+				<!-- 				<div class="card-wrapper confirm-outer-card">
 					<div class="card fat">
 						<div class="card-body">
+ -->
+				<form id="second-factor-type" name="secondFactorType"
+					action="/user/second-factor" method="post"
+					th:action="@{/user/second-factor}">
 
-							<form id="second-factor-type" name="secondFactorType"
-								action="/user/second-factor" method="post"
-								th:action="@{/user/second-factor}">
+					<div class="row">
+						<div class="col">
+							<p class="font-weight-bold badge badge-move"
+								style="font-size: 1.1rem;">Please select authentication
+								method</p>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col second-factor-type text-center mx-2"
+							th:each="secondFactorType : ${secondFactorTypes}">
+							<input type="radio" name="secondFactorType"
+								th:id="${secondFactorType}" th:value="${secondFactorType}">
+
+							<label th:for="${secondFactorType}">
+								<div class="row">
+									<div class="col">
+										<img th:if="${secondFactorType == 'SMS_PRIMARY'}"
+											class="primary-mobile" height="201"
+											width="150" /> <img
+											th:if="${secondFactorType == 'SOFT_TOKEN'}"
+											class="soft-token" height="85" width="150" />
+									</div>
+								</div>
 
 								<div class="row">
 									<div class="col">
-										<p class="font-weight-bold badge badge-move"
-											style="font-size: 1.1rem;">Please select authentication
-											method</p>
+										<span class="text-white"
+											th:if="${secondFactorType == 'SOFT_TOKEN'}">Token</span>
+										<span class="text-white"
+											th:if="${secondFactorType == 'SMS_PRIMARY'}">Primary Mobile</span>
 									</div>
 								</div>
 
-								<div class="row">
-									<div class="col second-factor-type"
-										th:each="secondFactorType : ${secondFactorTypes}">
-										<input type="radio" name="secondFactorType"
-											th:id="${secondFactorType}" th:value="${secondFactorType}">
-										<label th:for="${secondFactorType}"> <i
-											th:if="${secondFactorType == 'SMS_PRIMARY'}"
-											class="fa fa-sms fa-5x" aria-hidden="true"></i> <i
-											th:if="${secondFactorType == 'SOFT_TOKEN'}"
-											class="fa fa-asterisk" aria-hidden="true"></i> <i
-											th:if="${secondFactorType == 'SOFT_TOKEN'}"
-											class="fa fa-asterisk" aria-hidden="true"></i> <i
-											th:if="${secondFactorType == 'SOFT_TOKEN'}"
-											class="fa fa-asterisk" aria-hidden="true"></i> 
-											<span th:if="${secondFactorType == 'SOFT_TOKEN'}">Soft Token</span> 
-											<span th:if="${secondFactorType == 'SMS_PRIMARY'}">SMS</span>
-										</label>
-									</div>
-								</div>
+							</label>
 
 
-							</form>
+
+							<!-- </label> -->
 						</div>
 					</div>
-				</div>
+
+
+				</form>
+				<!-- 						</div>
+					</div>
+				</div> -->
 			</div>
 		</div>
 	</section>
