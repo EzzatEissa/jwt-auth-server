@@ -106,10 +106,13 @@ input[type="color"]:focus,
 
 .primary-mobile{
     background-image: url('../images/primary_mobile.png');
-/*     border: 3px solid #3e3e3e;
-    border-radius: 50%; */
     background-repeat: no-repeat;
-    display: block;
+    width: 150px;
+    height: 201px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    border-radius: 21px;
 }
 
 .primary-mobile:hover{
@@ -118,11 +121,14 @@ input[type="color"]:focus,
 
 .soft-token{
 	background-image: url('../images/soft_token.png');
-/*     border: 3px solid #3e3e3e;
-    border-radius: 50%; */
-	background-repeat: no-repeat;
-	display: block;
+ background-repeat: no-repeat;
+    width: 150px;
+    height: 85px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
 	margin-top: 113px;
+	border-radius: 21px;
 }
 .soft-token:hover{
 	background-color: #f9bc3d;

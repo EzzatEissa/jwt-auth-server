@@ -57,11 +57,10 @@
 							<label th:for="${secondFactorType}">
 								<div class="row">
 									<div class="col">
-										<img th:if="${secondFactorType == 'SMS_PRIMARY'}"
-											class="primary-mobile" height="201"
-											width="150" /> <img
+										<div th:if="${secondFactorType == 'SMS_PRIMARY'}"
+											class="primary-mobile"></div> <div
 											th:if="${secondFactorType == 'SOFT_TOKEN'}"
-											class="soft-token" height="85" width="150" />
+											class="soft-token" ></div>
 									</div>
 								</div>
 
