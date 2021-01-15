@@ -24,4 +24,6 @@ public interface ConsentRepo extends JpaRepository<Consent, Long> {
 
     @Query("select cnsnt.app from Consent cnsnt where cnsnt.account.user.id = :userId")
     public List<App> getConsentAppsByUserId(@Param("userId") Long userId);
+
+    public List<Consent> getConsentByAccount_AccountNumberAndApp_ClientId(@Param("accountNumber") String accountNumber, @Param("appId") String appId);
 }

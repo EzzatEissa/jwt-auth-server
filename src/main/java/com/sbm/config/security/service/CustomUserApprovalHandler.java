@@ -19,14 +19,14 @@ public class CustomUserApprovalHandler extends DefaultUserApprovalHandler{
 	@Autowired
 	private AppService appService;
 	
-	@Override
-	public AuthorizationRequest updateAfterApproval(AuthorizationRequest authorizationRequest, Authentication userAuthentication) {
-		Map<String, String> approvalParameters = authorizationRequest.getApprovalParameters();
-		String flag = approvalParameters.get(approvalParameter);
-		boolean approved = flag != null && flag.toLowerCase().equals("true");
-		authorizationRequest.setApproved(approved);
-		//approve or deny per scope in approvalParameters
-		consentService.save(authorizationRequest);
-		return authorizationRequest;
-	}
+//	@Override
+//	public AuthorizationRequest updateAfterApproval(AuthorizationRequest authorizationRequest, Authentication userAuthentication) {
+//		Map<String, String> approvalParameters = authorizationRequest.getApprovalParameters();
+//		String flag = approvalParameters.get(approvalParameter);
+//		boolean approved = flag != null && flag.toLowerCase().equals("true");
+//		authorizationRequest.setApproved(approved);
+//		//approve or deny per scope in approvalParameters
+//		consentService.save(authorizationRequest);
+//		return authorizationRequest;
+//	}
 }

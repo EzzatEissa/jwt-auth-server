@@ -3,17 +3,14 @@ package com.sbm.config.controller;
 import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.sbm.config.security.service.CustomUserApprovalHandler;
+import com.sbm.modules.consent.service.consent.ConsentService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +55,12 @@ import com.sbm.modules.consent.service.permission.PermissionService;
 public class ApprovalController {
 
 	static final String AUTHORIZATION_REQUEST_ATTR_NAME = "authorizationRequest";
+	private String approvalParameter = OAuth2Utils.USER_OAUTH_APPROVAL;
 
 	static final String ORIGINAL_AUTHORIZATION_REQUEST_ATTR_NAME = "org.springframework.security.oauth2.provider.endpoint.AuthorizationEndpoint.ORIGINAL_AUTHORIZATION_REQUEST";
 
-	private UserApprovalHandler userApprovalHandler = new DefaultUserApprovalHandler();
+	@Autowired
+	private UserApprovalHandler userApprovalHandler;
 
 	private static final Logger LOG = LoggerFactory.getLogger(ApprovalController.class);
 
@@ -70,6 +69,9 @@ public class ApprovalController {
 
 	@Autowired
 	private PermissionService permissionService;
+
+	@Autowired
+	private ConsentService consentService;
 
 	private final String USER_ACCOUNTS_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/accounts";
 
@@ -107,7 +109,7 @@ public class ApprovalController {
 		Set<String> responseTypes = authorizationRequest.getResponseTypes();
 
 		authorizationRequest.setApprovalParameters(approvalParameters);
-		authorizationRequest = this.userApprovalHandler.updateAfterApproval(authorizationRequest,
+		authorizationRequest = updateAfterApproval(authorizationRequest,
 				(Authentication) principal);
 		boolean approved = this.userApprovalHandler.isApproved(authorizationRequest, (Authentication) principal);
 		authorizationRequest.setApproved(approved);
@@ -332,5 +334,19 @@ public class ApprovalController {
 		String uri = request.getRequestURI();
 		String host = url.substring(0, url.indexOf(uri));
 		return host;
+	}
+
+	private AuthorizationRequest updateAfterApproval(AuthorizationRequest authorizationRequest, Authentication userAuthentication) {
+		Map<String, String> approvalParameters = authorizationRequest.getApprovalParameters();
+		String flag = approvalParameters.get(approvalParameter);
+		boolean approved = flag != null && flag.toLowerCase().equals("true");
+		authorizationRequest.setApproved(approved);
+		//approve or deny per scope in approvalParameters
+		List<String> accounts = null;
+		if(approvalParameters.get("accounts") != null) {
+			accounts = Arrays.asList(approvalParameters.get("accounts").split(","));
+		}
+		consentService.save(authorizationRequest, accounts);
+		return authorizationRequest;
 	}
 }

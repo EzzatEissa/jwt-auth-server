@@ -16,5 +16,7 @@ public interface ConsentService {
 
     public List<AppDto> getConsentAppsForUser(Long userId);
 
-    public void save(AuthorizationRequest authorizationRequest);
+    public void save(AuthorizationRequest authorizationRequest, List<String> accounts);
+
+    List<Consent> getConsentByAccountAndApp(String accountNumber, String appId);
 }

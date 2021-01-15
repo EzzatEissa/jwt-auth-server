@@ -34,6 +34,9 @@ INSERT INTO  account_type (id, code, name) VALUES (3,'MoneyMarketAccounts','Mone
 INSERT INTO  account_type (id, code, name) VALUES (4,'CDs','Certificates of Deposit (CDs)');
 INSERT INTO  account_type (id, code, name) VALUES (5,'RetirementAccounts','Retirement Accounts');
 
+INSERT INTO  account_type (id, code, name) VALUES (6,'Mortgage','Mortgage Accounts');
+INSERT INTO  account_type (id, code, name) VALUES (7,'Loan','Loan Accounts');
+
 -- ------------------------- Permission ----------------------------
 INSERT INTO permission(id, created_at, description, last_updated_at, name, code) VALUES(1, '2020-08-17 18:47:52', 'Ability to read basic account information', '2020-08-17 18:47:52', 'Read Accounts Basic', 'ReadAccountsBasic');
 INSERT INTO permission(id, created_at, description, last_updated_at, name, code) VALUES(2, '2020-08-17 18:47:52', 'Ability to read account identification details', '2020-08-17 18:47:52', 'Read Accounts Detail', 'ReadAccountsDetail');
@@ -89,24 +92,24 @@ VALUES(3, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Mohamed Abdalla
 -- ------------------------- ACCOUNT ----------------------------
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
-VALUES(1, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '9568254111', 1, 1);
+VALUES(1, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '1084835731527', 1, 6);
 
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
-VALUES(2, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '9567774111', 1, 2);
+VALUES(2, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '4697356445296', 1, 7);
 
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
-VALUES(3, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'NOT ACTIVE', '9657774111', 2, 3);
+VALUES(3, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'NOT ACTIVE', '9657774111', 2, 6);
 
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
-VALUES(4, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '9657774849', 2, 4);
+VALUES(4, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '9657774849', 2, 7);
 
 
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
-VALUES(5, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'NOT ACTIVE', '9657774849', 3, 5);
+VALUES(5, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'NOT ACTIVE', '9657774849', 3, 6);
 
 
 
@@ -122,9 +125,9 @@ VALUES(5, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'NOT ACTIVE', '96577
 -- ------------------------- Consent ----------------------------
 
 INSERT INTO consent (id, created_at, description, last_updated_at, status, expiration_date_time, transaction_from_date_time, transaction_to_date_time, account, app)
-VALUES (1,'2020-08-17 18:47:52','','2020-08-17 18:47:52','VALID','2020-09-17 18:47:52','2020-08-17 18:47:52','2020-09-17 18:47:52',1,1);
+VALUES (1,'2020-08-17 18:47:52','','2020-08-17 18:47:52','AUTHORIZED','2020-09-17 18:47:52','2020-08-17 18:47:52','2020-09-17 18:47:52',1,1);
 INSERT INTO consent (id, created_at, description, last_updated_at, status, expiration_date_time, transaction_from_date_time, transaction_to_date_time, account, app)
-VALUES (2,'2020-08-17 18:47:52','','2020-08-17 18:47:52','NOT VALID','2020-09-17 18:47:52','2020-08-17 18:47:52','2020-09-17 18:47:52',3,2);
+VALUES (2,'2020-08-17 18:47:52','','2020-08-17 18:47:52','REJECTED','2020-09-17 18:47:52','2020-08-17 18:47:52','2020-09-17 18:47:52',3,2);
 -- ------------------------- Consent_Permission ----------------------------
 
 INSERT INTO consent_permission VALUES (1,1);

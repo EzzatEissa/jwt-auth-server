@@ -9,8 +9,10 @@ import com.sbm.modules.consent.model.App;
 import com.sbm.modules.consent.model.Consent;
 import com.sbm.modules.consent.model.Permission;
 import com.sbm.modules.consent.repository.ConsentRepo;
+import com.sbm.modules.consent.service.account.AccountsService;
 import com.sbm.modules.consent.service.app.AppService;
 import com.sbm.modules.consent.service.permission.PermissionService;
+import com.sbm.modules.openbanking.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
@@ -34,6 +36,9 @@ public class ConsentServiceImpl implements ConsentService {
     @Autowired
     private PermissionService permissionService;
 
+    @Autowired
+    AccountsService accountService;
+
     private String approvalParameter = OAuth2Utils.USER_OAUTH_APPROVAL;
 
     @Override
@@ -55,43 +60,62 @@ public class ConsentServiceImpl implements ConsentService {
     }
 
     @Override
-    public void save(AuthorizationRequest authorizationRequest) {
-        Consent consent = new Consent();
-        Account acc = new Account();
+    public void save(AuthorizationRequest authorizationRequest,  List<String> accounts) {
+
         App app = appService.getAppByClientId(authorizationRequest.getClientId());
         Map<String, String> approvalParameters = authorizationRequest.getApprovalParameters();
 
-        acc.setId(1L);
-        consent.setAccount(acc);
-        consent.setApp(app);
+        if(accounts != null && !accounts.isEmpty()) {
+            accounts.stream().forEach(accountNumber -> {
+                Consent consent = new Consent();
+                Account account = accountService.getAccount(accountNumber.trim());
+                if(account != null) {
 
-        List<Permission> perms = new ArrayList<>();
+                    List<Consent> consents = getConsentByAccountAndApp(accountNumber, app.getClientId());
+                    if(consents != null && !consents.isEmpty()) {
+                        consents.stream().forEach(cnsnt -> {
+//                            cnsnt.setStatus(ConsentStatus.REJECTED.toString());
+                            consentRepo.delete(cnsnt);
+                        });
+                    }
+                    consent.setAccount(account);
+                    consent.setApp(app);
+                    if (authorizationRequest.getScope() != null && !authorizationRequest.getScope().isEmpty()) {
+                        List<Permission> perms = new ArrayList<>();
 
-        addPermissionToConsent(approvalParameters, perms);
-        consent.setPermissions(perms);
-         if(perms != null && perms.size() > 0) {
-             consent.setStatus(ConsentStatus.AUTHORIZED.name());
-         } else {
-             consent.setStatus(ConsentStatus.REJECTED.name());
-         }
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MONTH, 1);
-        consent.setExpirationDateTime(cal.getTime());
-        consent.setTransactionFromDateTime(new Date());
-        consent.setTransactionToDateTime(cal.getTime());
-        consentRepo.save(consent);
+                        addPermissionToConsent(authorizationRequest.getScope(), perms);
+                        consent.setPermissions(perms);
+                        if(perms != null && perms.size() > 0) {
+                            consent.setStatus(ConsentStatus.AUTHORIZED.name());
+                        } else {
+                            consent.setStatus(ConsentStatus.REJECTED.name());
+                        }
+                        Calendar cal = Calendar.getInstance();
+                        cal.add(Calendar.MONTH, 1);
+                        consent.setExpirationDateTime(cal.getTime());
+                        consent.setTransactionFromDateTime(new Date());
+                        consent.setTransactionToDateTime(cal.getTime());
+                        consentRepo.save(consent);
+                    }
+
+                }
+
+            });
+        }
+
     }
 
-    private void addPermissionToConsent(Map<String, String> approvalParameters, List<Permission> perms) {
-        approvalParameters.forEach((k, v) -> {
-            if(!approvalParameter.equals(k) && !"authorize".equals(k)) {
-                if("true".equals(v)) {
-                    Permission perm = permissionService.getPermissionByCode(k);
-                    if (perm != null) {
-                        perms.add(perm);
-                    }
-                }
+    private void addPermissionToConsent(Set<String> scopesStr, List<Permission> perms) {
+        scopesStr.stream().forEach(permissionStr -> {
+            Permission perm = permissionService.getPermissionByCode(permissionStr);
+            if (perm != null) {
+                perms.add(perm);
             }
         });
+    }
+
+    @Override
+    public List<Consent> getConsentByAccountAndApp(String accountNumber, String appId) {
+        return consentRepo.getConsentByAccount_AccountNumberAndApp_ClientId(accountNumber, appId);
     }
 }
