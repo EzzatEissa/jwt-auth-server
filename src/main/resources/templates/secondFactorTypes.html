@@ -49,27 +49,22 @@
 					</div>
 
 					<div class="row">
-						<div class="col second-factor-type text-center mx-2"
-							th:each="secondFactorType : ${secondFactorTypes}">
+						<div class="col second-factor-type text-center mx-1"
+							th:each="secondFactorType : ${secondFactorTypes}" th:if="${secondFactorType.enabled}">
 							<input type="radio" name="secondFactorType"
-								th:id="${secondFactorType}" th:value="${secondFactorType}">
+								th:id="${secondFactorType.name}" th:value="${secondFactorType.name}">
 
-							<label th:for="${secondFactorType}">
+							<label th:for="${secondFactorType.name}">
 								<div class="row">
 									<div class="col">
-										<div th:if="${secondFactorType == 'SMS_PRIMARY'}"
-											class="primary-mobile"></div> <div
-											th:if="${secondFactorType == 'SOFT_TOKEN'}"
-											class="soft-token" ></div>
+										<div th:class="${'icon-auth-type-' + secondFactorType.name}"></div>
 									</div>
 								</div>
 
 								<div class="row">
 									<div class="col">
 										<span class="text-white"
-											th:if="${secondFactorType == 'SOFT_TOKEN'}">Token</span>
-										<span class="text-white"
-											th:if="${secondFactorType == 'SMS_PRIMARY'}">Primary Mobile</span>
+											th:text="${secondFactorType.name}"></span>
 									</div>
 								</div>
 

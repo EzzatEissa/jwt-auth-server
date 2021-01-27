@@ -94,9 +94,7 @@ public class UserSecurityController {
 		}
 
 		if (userAuthDto.getSuccessLogin() && userAuthDto.getSecondFactorEnabled()) {
-
-			List<String> secondFactorTypes = this.userSecurityService.getSecondFactorTypes();
-			model.addAttribute("secondFactorTypes", secondFactorTypes);
+			model.addAttribute("secondFactorTypes", userAuthDto.getAuthenticationFactorTypesDtoList());
 			return "secondFactorTypes";
 		}
 		else {

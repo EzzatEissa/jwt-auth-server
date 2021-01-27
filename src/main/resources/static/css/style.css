@@ -103,8 +103,76 @@ input[type="color"]:focus,
 .form-check-label{
 	font-weight: bold;
 }
-
-.primary-mobile{
+.icon-auth-type-PASSWORD{
+    background-image: url('../images/password_token.png');
+    background-repeat: no-repeat;
+    width: 150px;
+    height: 85px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    margin-top: 113px;
+    border-radius: 21px;
+}
+.icon-auth-type-PASSWORD:hover{
+    background-color: #f9bc3d;
+}
+.icon-auth-type-TOKEN{
+    background-image: url('../images/token.png');
+    background-repeat: no-repeat;
+    width: 150px;
+    height: 85px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    margin-top: 113px;
+    border-radius: 21px;
+}
+.icon-auth-type-TOKEN:hover{
+    background-color: #f9bc3d;
+}
+.icon-auth-type-OFFLINE{
+    background-image: url('../images/offline.png');
+    background-repeat: no-repeat;
+    width: 150px;
+    height: 85px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    margin-top: 113px;
+    border-radius: 21px;
+}
+.icon-auth-type-OFFLINE:hover{
+    background-color: #f9bc3d;
+}
+.icon-auth-type-SMS_SECONDARY{
+    background-image: url('../images/secondary_mobile.png');
+    background-repeat: no-repeat;
+    width: 150px;
+    height: 201px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    border-radius: 21px;
+}
+.icon-auth-type-SMS_SECONDARY:hover{
+    background-color: #f9bc3d;
+}
+.icon-auth-type-SOFTTOKEN{
+    background-image: url('../images/soft_token.png');
+    background-repeat: no-repeat;
+    width: 150px;
+    height: 85px;
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    margin-top: 113px;
+    border-radius: 21px;
+}
+.icon-auth-type-SOFTTOKEN:hover{
+    background-color: #f9bc3d;
+}
+.icon-auth-type-SMS_PRIMARY{
     background-image: url('../images/primary_mobile.png');
     background-repeat: no-repeat;
     width: 150px;
@@ -114,25 +182,34 @@ input[type="color"]:focus,
     border: none;
     border-radius: 21px;
 }
+.icon-auth-type-SMS_PRIMARY:hover{
+    background-color: #f9bc3d;
+}
+/*.primary-mobile{*/
+/*    background-image: url('../images/primary_mobile.png');*/
+/*    background-repeat: no-repeat;*/
+/*    width: 150px;*/
+/*    height: 201px;*/
+/*    margin: 0px;*/
+/*    padding: 0px;*/
+/*    border: none;*/
+/*    border-radius: 21px;*/
+/*}*/
 
-.primary-mobile:hover{
-	background-color: #f9bc3d;
-}
 
-.soft-token{
-	background-image: url('../images/soft_token.png');
- background-repeat: no-repeat;
-    width: 150px;
-    height: 85px;
-    margin: 0px;
-    padding: 0px;
-    border: none;
-	margin-top: 113px;
-	border-radius: 21px;
-}
-.soft-token:hover{
-	background-color: #f9bc3d;
-}
+
+/*.soft-token{*/
+/*	background-image: url('../images/soft_token.png');*/
+/* background-repeat: no-repeat;*/
+/*    width: 150px;*/
+/*    height: 85px;*/
+/*    margin: 0px;*/
+/*    padding: 0px;*/
+/*    border: none;*/
+/*	margin-top: 113px;*/
+/*	border-radius: 21px;*/
+/*}*/
+
 
 .second-factor-type input[type="radio"]{
     -webkit-appearance:none;

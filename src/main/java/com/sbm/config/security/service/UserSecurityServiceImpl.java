@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.sbm.common.dto.AuthenticationFactorTypesDto;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,196 +38,196 @@ import com.sbm.modules.consent.service.user.UserService;
 @Service
 public class UserSecurityServiceImpl implements UserSecurityService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(UserSecurityController.class);
-	private final String LOGIN_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/login";
-	private final String SECOND_FACTOR_TYPES_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/get-second-factor-authentication-methods";
-	private final String VALIDATE_SECOND_FACTOR_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/validate-second-factor-authentication";
+    private static final Logger LOG = LoggerFactory.getLogger(UserSecurityController.class);
+    private final String LOGIN_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/login";
+    private final String SECOND_FACTOR_TYPES_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/get-second-factor-authentication-methods";
+    private final String VALIDATE_SECOND_FACTOR_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/validate-second-factor-authentication";
 
-	private static final String REDIRECT_PATH = "/user/second_factor";
+    private static final String REDIRECT_PATH = "/user/second_factor";
 
-	@Autowired
-	UserService userService;
+    @Autowired
+    UserService userService;
 
-	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	@Override
-	public UserAuthDto userLogin(String userName, String password, HttpServletRequest request) {
+    @Override
+    public UserAuthDto userLogin(String userName, String password, HttpServletRequest request) {
 
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("mock", "true");
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("mock", "true");
 
-		HttpEntity<String> entity = new HttpEntity<>("body", headers);
+        HttpEntity<String> entity = new HttpEntity<>("body", headers);
 
-		ResponseEntity<String> res = restTemplate.exchange(this.LOGIN_URL, HttpMethod.POST, entity, String.class);
+        ResponseEntity<String> res = restTemplate.exchange(this.LOGIN_URL, HttpMethod.POST, entity, String.class);
 
-		if (res != null) {
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				Map resJson = mapper.readValue(res.getBody(), HashMap.class);
-				UserAuthDto userAuthDto = new UserAuthDto();
-				if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success-login") != null) {
-					userAuthDto.setSuccessLogin(Boolean
-							.parseBoolean((((Map) resJson.get("data")).get("success-login")).toString().toLowerCase()));
-					HttpSession userSession = request.getSession();
-					userSession.setAttribute("userName", userName);
-					userSession.setAttribute("password", password);
-				}
+        if (res != null) {
+            ObjectMapper mapper = new ObjectMapper();
 
-				if (resJson.get("data") != null
-						&& ((Map) resJson.get("data")).get("secondary-authentication-enabled") != null) {
-					userAuthDto.setSecondFactorEnabled(
-							Boolean.parseBoolean((((Map) resJson.get("data")).get("secondary-authentication-enabled"))
-									.toString().toLowerCase()));
-				}
+            String loginMockData = "{\"data\":{\"success\":true,\"secondary_authentication_enabled\":true,\"authentication_types\":[{\"name\":\"PASSWORD\",\"code\":\"01\",\"enabled\":false},{\"name\":\"TOKEN\",\"code\":\"02\",\"enabled\":false},{\"name\":\"SMS_PRIMARY\",\"code\":\"03\",\"enabled\":true},{\"name\":\"OFFLINE\",\"code\":\"05\",\"enabled\":false},{\"name\":\"SMS_SECONDARY\",\"code\":\"07\",\"enabled\":true},{\"name\":\"SOFTTOKEN\",\"code\":\"08\",\"enabled\":true}]}}";
+            try {
+                Map resJson = mapper.readValue(loginMockData, HashMap.class);
+                UserAuthDto userAuthDto = new UserAuthDto();
+                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success") != null) {
+                    userAuthDto.setSuccessLogin(Boolean
+                            .parseBoolean((((Map) resJson.get("data")).get("success")).toString()));
+                    HttpSession userSession = request.getSession();
+                    userSession.setAttribute("userName", userName);
+                    userSession.setAttribute("password", password);
+                }
 
-				return userAuthDto;
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-				return new UserAuthDto();
-			}
+                if (resJson.get("data") != null
+                        && ((Map) resJson.get("data")).get("secondary_authentication_enabled") != null) {
+                    userAuthDto.setSecondFactorEnabled(
+                            Boolean.parseBoolean((((Map) resJson.get("data")).get("secondary_authentication_enabled"))
+                                    .toString()));
+                    if(((Map) resJson.get("data")).get("authentication_types") != null) {
+                        //List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = mapper.readValue(((Map) resJson.get("data")).get("authentication_types").toString(), List.class);
+                        List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = (List)((Map) resJson.get("data")).get("authentication_types");
+                        userAuthDto.setAuthenticationFactorTypesDtoList(authenticationFactorTypesDtoList);
+                    }
 
-		}
-		else {
-			return new UserAuthDto();
-		}
-	}
+                }
 
-	@Override
-	public List<String> getSecondFactorTypes() {
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("mock", "true");
+                return userAuthDto;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new UserAuthDto();
+            }
 
-		HttpEntity<String> entity = new HttpEntity<>("body", headers);
+        } else {
+            return new UserAuthDto();
+        }
+    }
 
-		ResponseEntity<String> res = restTemplate.exchange(this.SECOND_FACTOR_TYPES_URL, HttpMethod.POST, entity,
-				String.class);
+    @Override
+    public List<String> getSecondFactorTypes() {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("mock", "true");
 
-		if (res != null) {
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				Map resJson = mapper.readValue(res.getBody(), HashMap.class);
-				if (resJson.get("data") != null && ((Map) resJson.get("data")).get("authentication-methods") != null) {
-					return (List) ((Map) resJson.get("data")).get("authentication-methods");
-				}
+        HttpEntity<String> entity = new HttpEntity<>("body", headers);
 
-				return null;
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			}
+        ResponseEntity<String> res = restTemplate.exchange(this.SECOND_FACTOR_TYPES_URL, HttpMethod.POST, entity,
+                String.class);
 
-		}
-		else {
-			return null;
-		}
-	}
+        if (res != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Map resJson = mapper.readValue(res.getBody(), HashMap.class);
+                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("authentication-methods") != null) {
+                    return (List) ((Map) resJson.get("data")).get("authentication-methods");
+                }
 
-	@Override
-	public Boolean validateSecondFactor(String confirmCode) {
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("mock", "true");
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
 
-		HttpEntity<String> entity = new HttpEntity<>("body", headers);
+        } else {
+            return null;
+        }
+    }
 
-		ResponseEntity<String> res = restTemplate.exchange(this.VALIDATE_SECOND_FACTOR_URL, HttpMethod.POST, entity,
-				String.class);
+    @Override
+    public Boolean validateSecondFactor(String confirmCode) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("mock", "true");
 
-		if (res != null) {
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				Map resJson = mapper.readValue(res.getBody(), HashMap.class);
-				if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success-validation") != null) {
-					return Boolean.parseBoolean(
-							((Map) resJson.get("data")).get("success-validation").toString().toLowerCase());
-				}
+        HttpEntity<String> entity = new HttpEntity<>("body", headers);
 
-				return Boolean.FALSE;
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-				return Boolean.FALSE;
-			}
+        ResponseEntity<String> res = restTemplate.exchange(this.VALIDATE_SECOND_FACTOR_URL, HttpMethod.POST, entity,
+                String.class);
 
-		}
-		else {
-			return Boolean.FALSE;
-		}
-	}
+        if (res != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Map resJson = mapper.readValue(res.getBody(), HashMap.class);
+                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success-validation") != null) {
+                    return Boolean.parseBoolean(
+                            ((Map) resJson.get("data")).get("success-validation").toString().toLowerCase());
+                }
 
-	private void setLoggedInUserInContext(String userName) {
-		try {
-			User user = this.userService.findUserByUsername(userName);
-			if (user != null) {
-				SecurityUtils.configureSecurityContextForAuthenticatedUser(user);
-			}
-		}
-		catch (Exception e) {
-			throw e;
-		}
-	}
+                return Boolean.FALSE;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return Boolean.FALSE;
+            }
 
-	private String getServerUrl(HttpServletRequest request) {
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 
-		StringBuffer url = request.getRequestURL();
-		String uri = request.getRequestURI();
-		String host = url.substring(0, url.indexOf(uri));
-		LOG.info("------------------------getServerUrl ------------------ " + host);
-		return host;
-	}
+    private void setLoggedInUserInContext(String userName) {
+        try {
+            User user = this.userService.findUserByUsername(userName);
+            if (user != null) {
+                SecurityUtils.configureSecurityContextForAuthenticatedUser(user);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
-	private String composeAuthorizeUrl(String url, String serverUrl) {
-		String authorizeUrl = "";
-		LOG.info("------------------------Url Url Url Url ------------------ " + url);
-		if (url != null && !url.isEmpty() && url.contains("?")) {
-			authorizeUrl = url.split("\\?")[1];
-		}
-		LOG.info("------------------------composeAuthorizeUrl ------------------ " + authorizeUrl);
-		return serverUrl + "/oauth/authorize?" + authorizeUrl;
-	}
+    private String getServerUrl(HttpServletRequest request) {
 
-	@Override
-	public void setAuthUrlsToSessions(String userName, HttpServletResponse response, HttpServletRequest request)
-			throws Exception {
-		setLoggedInUserInContext(userName);
-		HttpSession userSession = request.getSession();
-		if (userSession != null && userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST") != null
-				&& !"".equals(userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST"))) {
-			SavedRequest previousSavedUrl = (SavedRequest) userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
-			String oldUrl = previousSavedUrl.getRedirectUrl();
-			if (oldUrl != null && oldUrl.contains("original-url")) {
-				String externalUrl = oldUrl.split("original-url=")[1];
-				String serverUrl = getServerUrl(request);
-				String authorizeUrl = composeAuthorizeUrl(URLDecoder.decode(externalUrl.toString(), "UTF-8"),
-						serverUrl);
-				StringBuilder location = new StringBuilder();
+        StringBuffer url = request.getRequestURL();
+        String uri = request.getRequestURI();
+        String host = url.substring(0, url.indexOf(uri));
+        LOG.info("------------------------getServerUrl ------------------ " + host);
+        return host;
+    }
 
-				location.append(externalUrl).append("&username=").append(userName).append("&confirmation=")
-						.append("AB");
+    private String composeAuthorizeUrl(String url, String serverUrl) {
+        String authorizeUrl = "";
+        LOG.info("------------------------Url Url Url Url ------------------ " + url);
+        if (url != null && !url.isEmpty() && url.contains("?")) {
+            authorizeUrl = url.split("\\?")[1];
+        }
+        LOG.info("------------------------composeAuthorizeUrl ------------------ " + authorizeUrl);
+        return serverUrl + "/oauth/authorize?" + authorizeUrl;
+    }
 
-				userSession.setAttribute("confirmation", "AB");
-				userSession.setAttribute("userName", userName);
-				userSession.setAttribute("externalUrl", URLDecoder.decode(location.toString(), "UTF-8"));
-				System.out.println("Redirect location original = " + URLDecoder.decode(location.toString(), "UTF-8"));
-				LOG.info("Redirect location original = " + URLDecoder.decode(location.toString(), "UTF-8"));
+    @Override
+    public void setAuthUrlsToSessions(String userName, HttpServletResponse response, HttpServletRequest request)
+            throws Exception {
+        setLoggedInUserInContext(userName);
+        HttpSession userSession = request.getSession();
+        if (userSession != null && userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST") != null
+                && !"".equals(userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST"))) {
+            SavedRequest previousSavedUrl = (SavedRequest) userSession.getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+            String oldUrl = previousSavedUrl.getRedirectUrl();
+            if (oldUrl != null && oldUrl.contains("original-url")) {
+                String externalUrl = oldUrl.split("original-url=")[1];
+                String serverUrl = getServerUrl(request);
+                String authorizeUrl = composeAuthorizeUrl(URLDecoder.decode(externalUrl.toString(), "UTF-8"),
+                        serverUrl);
+                StringBuilder location = new StringBuilder();
 
-				LOG.info("Redirect location original = " + URLDecoder.decode(authorizeUrl.toString(), "UTF-8"));
-				userSession.setAttribute("savedUrl", URLDecoder.decode(authorizeUrl.toString(), "UTF-8"));
+                location.append(externalUrl).append("&username=").append(userName).append("&confirmation=")
+                        .append("AB");
 
-				//http://localhost:8080/oauth/authorize?response_type=code&client_id=d6492371-762b-4768-937f-6be6b3cec29f&scope=ReadAccountsBasic+ReadAccountsDetail&redirect_uri=https://www.info-tech.com/app-callback
+                userSession.setAttribute("confirmation", "AB");
+                userSession.setAttribute("userName", userName);
+                userSession.setAttribute("externalUrl", URLDecoder.decode(location.toString(), "UTF-8"));
+                System.out.println("Redirect location original = " + URLDecoder.decode(location.toString(), "UTF-8"));
+                LOG.info("Redirect location original = " + URLDecoder.decode(location.toString(), "UTF-8"));
 
-			}
-			else {
-				userSession.setAttribute("confirmation", "AB");
-				userSession.setAttribute("userName", userName);
-				userSession.setAttribute("savedUrl", URLDecoder.decode(oldUrl.toString(), "UTF-8"));
-			}
+                LOG.info("Redirect location original = " + URLDecoder.decode(authorizeUrl.toString(), "UTF-8"));
+                userSession.setAttribute("savedUrl", URLDecoder.decode(authorizeUrl.toString(), "UTF-8"));
 
-			System.out.println("without original url ===== == == " + previousSavedUrl.getRedirectUrl());
-		}
-	}
+                //http://localhost:8080/oauth/authorize?response_type=code&client_id=d6492371-762b-4768-937f-6be6b3cec29f&scope=ReadAccountsBasic+ReadAccountsDetail&redirect_uri=https://www.info-tech.com/app-callback
+
+            } else {
+                userSession.setAttribute("confirmation", "AB");
+                userSession.setAttribute("userName", userName);
+                userSession.setAttribute("savedUrl", URLDecoder.decode(oldUrl.toString(), "UTF-8"));
+            }
+
+            System.out.println("without original url ===== == == " + previousSavedUrl.getRedirectUrl());
+        }
+    }
 }
