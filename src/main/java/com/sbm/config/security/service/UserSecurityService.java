@@ -12,12 +12,11 @@ import com.sbm.common.dto.UserAuthDto;
  */
 public interface UserSecurityService {
 
-	UserAuthDto userLogin(String userName, String password, HttpServletRequest request);
+	UserAuthDto userLogin(String userName, String password, HttpServletRequest request) throws Exception;
 
-	List<String> getSecondFactorTypes();
-
-	Boolean validateSecondFactor(String confirmCode);
+	Boolean validateSecondFactor(String confirmCode, String secondFactorType, String userName);
 
 	void setAuthUrlsToSessions(String userName, HttpServletResponse response, HttpServletRequest request)
 			throws Exception;
+	String generateOTP(String secondFactorType, String userName, Boolean isRegenerateCode);
 }

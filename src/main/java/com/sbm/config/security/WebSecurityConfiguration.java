@@ -1,23 +1,35 @@
 package com.sbm.config.security;
 
+import java.time.Duration;
 import java.util.Arrays;
 
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.sbm.config.security.service.UrlAuthenticationSuccessHandler;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 @Configuration
 @EnableWebSecurity
@@ -85,4 +97,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return new TwoFactorAuthenticationFilter();
 	}
 
+
+	@Bean
+	public RestTemplate restTemplate(
+			RestTemplateBuilder restTemplateBuilder) {
+
+		return restTemplateBuilder
+				.setConnectTimeout(Duration.ofSeconds(70))
+				.setReadTimeout(Duration.ofSeconds(70))
+				.build();
+	}
 }

@@ -17,17 +17,15 @@
                     <div class="card-body">
                         <div class="brand mb-5">
                             <img class="login-logo" height="122" width="412"/>
-                            <div class="row" th:if="${param.error}">
+                            <div class="row" th:if="${errMsg == 'ErrorLogin'}">
+                                <div class="col text-center">
+                                    <p class="badge badge-danger">Incorrect Username or password</p>
+                                </div>
+                            </div>
+                            <div class="row" th:if="${errMsg == 'Error'}">
                                 <div class="col text-center">
                                     <p class="badge badge-danger">There was an
                                         error, please try again</p>
-                                </div>
-                            </div>
-
-                            <div class="row" th:if="${param.logout}">
-                                <div class="col text-center">
-                                    <p class="badge badge-danger">You have been logged
-                                        out</p>
                                 </div>
                             </div>
                         </div>

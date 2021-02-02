@@ -1,16 +1,11 @@
 package com.sbm.config.security.service;
 
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import com.sbm.common.dto.AuthenticationFactorTypesDto;
+import com.sbm.common.dto.UserAuthDto;
+import com.sbm.common.security.SecurityUtils;
+import com.sbm.config.security.controller.UserSecurityController;
+import com.sbm.modules.consent.model.User;
+import com.sbm.modules.consent.service.user.UserService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +14,18 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.sbm.common.dto.UserAuthDto;
-import com.sbm.common.security.SecurityUtils;
-import com.sbm.config.security.controller.UserSecurityController;
-import com.sbm.modules.consent.model.User;
-import com.sbm.modules.consent.service.user.UserService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by EzzatEissa on 1/7/2021.
@@ -39,124 +35,117 @@ import com.sbm.modules.consent.service.user.UserService;
 public class UserSecurityServiceImpl implements UserSecurityService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserSecurityController.class);
+    //    private final String LOGIN_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/login";
     private final String LOGIN_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/login";
-    private final String SECOND_FACTOR_TYPES_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/get-second-factor-authentication-methods";
-    private final String VALIDATE_SECOND_FACTOR_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/validate-second-factor-authentication";
+
+    private final String GENERATE_OTP_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/generateOTP";
+    private final String REGENERATE_OTP_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/resendOTP";
+
+    private final String VALIDATE_CODE_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/validateCode";
 
     private static final String REDIRECT_PATH = "/user/second_factor";
 
     @Autowired
     UserService userService;
 
-    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    @Autowired
+    RestTemplate restTemplate;
 
     @Override
-    public UserAuthDto userLogin(String userName, String password, HttpServletRequest request) {
+    public UserAuthDto userLogin(String userName, String password, HttpServletRequest request) throws Exception {
 
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.add("mock", "true");
+        Map<String, Object> body = new HashMap<>();
+        body.put("username", userName);
+        body.put("password", "P@ssw0rd1");
+        headers.add("mock", "false");
 
-        HttpEntity<String> entity = new HttpEntity<>("body", headers);
-
-        ResponseEntity<String> res = restTemplate.exchange(this.LOGIN_URL, HttpMethod.POST, entity, String.class);
+        headers.add("x-rb-user-id", userName);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        ResponseEntity<String> res = null;
+        try {
+            res = restTemplate.exchange(this.LOGIN_URL, HttpMethod.POST, entity, String.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new Exception("Connection timeout");
+        }
 
         if (res != null) {
             ObjectMapper mapper = new ObjectMapper();
-
-            String loginMockData = "{\"data\":{\"success\":true,\"secondary_authentication_enabled\":true,\"authentication_types\":[{\"name\":\"PASSWORD\",\"code\":\"01\",\"enabled\":false},{\"name\":\"TOKEN\",\"code\":\"02\",\"enabled\":false},{\"name\":\"SMS_PRIMARY\",\"code\":\"03\",\"enabled\":true},{\"name\":\"OFFLINE\",\"code\":\"05\",\"enabled\":false},{\"name\":\"SMS_SECONDARY\",\"code\":\"07\",\"enabled\":true},{\"name\":\"SOFTTOKEN\",\"code\":\"08\",\"enabled\":true}]}}";
             try {
-                Map resJson = mapper.readValue(loginMockData, HashMap.class);
-                UserAuthDto userAuthDto = new UserAuthDto();
-                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success") != null) {
-                    userAuthDto.setSuccessLogin(Boolean
-                            .parseBoolean((((Map) resJson.get("data")).get("success")).toString()));
-                    HttpSession userSession = request.getSession();
-                    userSession.setAttribute("userName", userName);
-                    userSession.setAttribute("password", password);
-                }
+                Map resJson = mapper.readValue(res.getBody(), HashMap.class);
+                if (resJson.get("data") != null) {
+                    UserAuthDto userAuthDto = new UserAuthDto();
+                    Boolean successLogin = (Boolean) ((Map) resJson.get("data")).get("success");
+                    if (successLogin != null && successLogin) {
+                        userAuthDto.setSuccessLogin(successLogin);
+                        HttpSession userSession = request.getSession();
+                        userSession.setAttribute("userName", userName);
+                        userSession.setAttribute("password", password);
+                        Boolean secondAuthEnabled = (Boolean) ((Map) resJson.get("data")).get("secondary_authentication_enabled");
+                        if (secondAuthEnabled != null) {
+                            userAuthDto.setSecondFactorEnabled(secondAuthEnabled);
+                            if (((Map) resJson.get("data")).get("authentication_types") != null) {
+                                List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = (List) ((Map) resJson.get("data")).get("authentication_types");
+                                userAuthDto.setAuthenticationFactorTypesDtoList(authenticationFactorTypesDtoList);
+                            }
 
-                if (resJson.get("data") != null
-                        && ((Map) resJson.get("data")).get("secondary_authentication_enabled") != null) {
-                    userAuthDto.setSecondFactorEnabled(
-                            Boolean.parseBoolean((((Map) resJson.get("data")).get("secondary_authentication_enabled"))
-                                    .toString()));
-                    if(((Map) resJson.get("data")).get("authentication_types") != null) {
-                        //List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = mapper.readValue(((Map) resJson.get("data")).get("authentication_types").toString(), List.class);
-                        List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = (List)((Map) resJson.get("data")).get("authentication_types");
-                        userAuthDto.setAuthenticationFactorTypesDtoList(authenticationFactorTypesDtoList);
+                        }
+                        return userAuthDto;
+                    } else {
+                        throw new Exception("ErrorLogin");
                     }
 
-                }
 
-                return userAuthDto;
+                }
+                throw new Exception("Error");
             } catch (IOException e) {
                 e.printStackTrace();
-                return new UserAuthDto();
+                throw new Exception("Error");
             }
 
         } else {
-            return new UserAuthDto();
+            throw new Exception("Error");
         }
     }
 
     @Override
-    public List<String> getSecondFactorTypes() {
-        RestTemplate restTemplate = new RestTemplate();
+    public Boolean validateSecondFactor(String confirmCode, String secondFactorType, String userName) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("mock", "true");
-
-        HttpEntity<String> entity = new HttpEntity<>("body", headers);
-
-        ResponseEntity<String> res = restTemplate.exchange(this.SECOND_FACTOR_TYPES_URL, HttpMethod.POST, entity,
-                String.class);
-
-        if (res != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                Map resJson = mapper.readValue(res.getBody(), HashMap.class);
-                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("authentication-methods") != null) {
-                    return (List) ((Map) resJson.get("data")).get("authentication-methods");
-                }
-
-                return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-        } else {
-            return null;
+        Map<String, Object> body = new HashMap<>();
+        body.put("authentication_type", secondFactorType);
+          if ("SMS_PRIMARY".equals(secondFactorType) || "SMS_SECONDARY".equals(secondFactorType)) {
+            body.put("OTP", confirmCode);
+        } else if ("TOKEN".equals(secondFactorType) || "SOFTTOKEN".equals(secondFactorType)) {
+            body.put("token", confirmCode);
         }
-    }
 
-    @Override
-    public Boolean validateSecondFactor(String confirmCode) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("mock", "true");
 
-        HttpEntity<String> entity = new HttpEntity<>("body", headers);
+        headers.add("mock", "false");
 
-        ResponseEntity<String> res = restTemplate.exchange(this.VALIDATE_SECOND_FACTOR_URL, HttpMethod.POST, entity,
-                String.class);
+        headers.add("x-rb-user-id", userName);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
-        if (res != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
+        try {
+            ResponseEntity<String> res = restTemplate.exchange(this.VALIDATE_CODE_URL, HttpMethod.POST, entity,
+                    String.class);
+            if (res != null) {
+                ObjectMapper mapper = new ObjectMapper();
+
                 Map resJson = mapper.readValue(res.getBody(), HashMap.class);
-                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success-validation") != null) {
+                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success") != null) {
                     return Boolean.parseBoolean(
-                            ((Map) resJson.get("data")).get("success-validation").toString().toLowerCase());
+                            ((Map) resJson.get("data")).get("success").toString().toLowerCase());
                 }
 
                 return Boolean.FALSE;
-            } catch (IOException e) {
-                e.printStackTrace();
+
+
+            } else {
                 return Boolean.FALSE;
             }
-
-        } else {
+        } catch (Exception e) {
+            e.printStackTrace();
             return Boolean.FALSE;
         }
     }
@@ -229,5 +218,37 @@ public class UserSecurityServiceImpl implements UserSecurityService {
 
             System.out.println("without original url ===== == == " + previousSavedUrl.getRedirectUrl());
         }
+    }
+
+    @Override
+    public String generateOTP(String secondFactorType, String userName, Boolean isRegenerateCode) {
+        String OTP = null;
+        HttpHeaders headers = new HttpHeaders();
+        Map<String, Object> body = new HashMap<>();
+        body.put("authentication_type", secondFactorType);
+
+        headers.add("mock", "false");
+
+        headers.add("x-rb-user-id", userName);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+        try {
+            ResponseEntity<String> res = restTemplate.exchange((isRegenerateCode) ? this.REGENERATE_OTP_URL : this.GENERATE_OTP_URL, HttpMethod.POST, entity,
+                    String.class);
+
+
+            if (res != null) {
+                ObjectMapper mapper = new ObjectMapper();
+
+                Map resJson = mapper.readValue(res.getBody(), HashMap.class);
+                if (resJson.get("data") != null && ((Map) resJson.get("data")).get("success") != null) {
+                    return ((Map) resJson.get("data")).get("success").toString().toLowerCase();
+                }
+
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return OTP;
     }
 }
