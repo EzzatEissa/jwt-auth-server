@@ -100,7 +100,7 @@ public class UserSecurityController {
 
 			return "/login";
 		}
-		if (userAuthDto.getSuccessLogin()) {
+		if (userAuthDto.getSuccessLogin() != null && userAuthDto.getSuccessLogin()) {
 			this.userSecurityService.setAuthUrlsToSessions(userCredential.get("username"), response, request);
 		}
 
