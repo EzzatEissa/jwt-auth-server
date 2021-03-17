@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS permission (
 
 
 CREATE TABLE IF NOT EXISTS segment (
-  id bigint(20) NOT NULL,
+  id bigint(20) NOT NULL auto_increment,
   created_at datetime DEFAULT NULL,
   description text,
   status VARCHAR(256),
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS segment (
 );
 
 CREATE TABLE IF NOT EXISTS account_type (
-  id bigint(20) NOT NULL,
+  id bigint(20) NOT NULL auto_increment,
   created_at datetime DEFAULT NULL,
   description text,
   status VARCHAR(256),
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS app_permission (
 );
 
 CREATE TABLE IF NOT EXISTS user (
-  id bigint(20) NOT NULL,
+  id bigint(20) NOT NULL auto_increment,
   created_at datetime DEFAULT NULL,
   description text,
   status VARCHAR(256),
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS user (
 );
 
 CREATE TABLE IF NOT EXISTS account (
-  id bigint(20) NOT NULL,
+  id bigint(20) NOT NULL auto_increment,
   created_at datetime DEFAULT NULL,
   description text,
   status varchar(255) DEFAULT NULL,

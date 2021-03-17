@@ -4,7 +4,9 @@ import com.sbm.common.dto.AuthenticationFactorTypesDto;
 import com.sbm.common.dto.UserAuthDto;
 import com.sbm.common.security.SecurityUtils;
 import com.sbm.config.security.controller.UserSecurityController;
+import com.sbm.modules.consent.model.Segment;
 import com.sbm.modules.consent.model.User;
+import com.sbm.modules.consent.service.segment.SegmentService;
 import com.sbm.modules.consent.service.user.UserService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by EzzatEissa on 1/7/2021.
@@ -51,13 +54,16 @@ public class UserSecurityServiceImpl implements UserSecurityService {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    SegmentService segmentService;
+
     @Override
     public UserAuthDto userLogin(String userName, String password, HttpServletRequest request) throws Exception {
 
         HttpHeaders headers = new HttpHeaders();
         Map<String, Object> body = new HashMap<>();
         body.put("username", userName);
-        body.put("password", "P@ssw0rd1");
+        body.put("password", password);
         headers.add("mock", "false");
 
         headers.add("x-rb-user-id", userName);
@@ -82,6 +88,9 @@ public class UserSecurityServiceImpl implements UserSecurityService {
                         HttpSession userSession = request.getSession();
                         userSession.setAttribute("userName", userName);
                         userSession.setAttribute("password", password);
+
+                        addNewUser(userName, password);
+
                         Boolean secondAuthEnabled = (Boolean) ((Map) resJson.get("data")).get("secondary_authentication_enabled");
                         if (secondAuthEnabled != null) {
                             userAuthDto.setSecondFactorEnabled(secondAuthEnabled);
@@ -106,6 +115,21 @@ public class UserSecurityServiceImpl implements UserSecurityService {
 
         } else {
             throw new Exception("Error");
+        }
+    }
+
+    private void addNewUser(String userName, String password) {
+        User currentUser = userService.findUserByUsername(userName);
+        if(currentUser == null || currentUser.getId() == null) {
+            User user = new User();
+            user.setFirstName(generateNames());
+            user.setLastName(generateNames());
+            user.setUserName(userName);
+            user.setPassword(password);
+            user.setName(user.getFirstName() + " " + user.getLastName());
+            Optional<Segment> segment = segmentService.getSegmentById(3L);
+            user.setSegment(segment.get());
+            userService.saveUser(user);
         }
     }
 
@@ -252,5 +276,11 @@ public class UserSecurityServiceImpl implements UserSecurityService {
             e.printStackTrace();
         }
         return OTP;
+    }
+
+    private String generateNames() {
+        String[] names = { "Ahmed", "Ezzat","Adel", "Omar", "mahmoud", "Abdallah" };
+        String name = names[(int) (Math.random() * names.length)];
+        return name;
     }
 }

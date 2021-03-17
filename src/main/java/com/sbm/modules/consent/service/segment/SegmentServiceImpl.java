@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SegmentServiceImpl implements SegmentService{
@@ -23,5 +24,10 @@ public class SegmentServiceImpl implements SegmentService{
 
         List<Segment> segments = segmentRepo.findAll();
         return mapperHelper.transform(segments, SegmentDto.class);
+    }
+
+    @Override
+    public Optional<Segment> getSegmentById(Long id) {
+        return segmentRepo.findById(id);
     }
 }

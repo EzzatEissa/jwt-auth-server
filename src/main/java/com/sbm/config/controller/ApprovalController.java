@@ -10,7 +10,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.sbm.config.security.service.CustomUserApprovalHandler;
+import com.sbm.modules.consent.model.Account;
+import com.sbm.modules.consent.model.AccountType;
+import com.sbm.modules.consent.model.User;
+import com.sbm.modules.consent.service.account.AccountTypeService;
+import com.sbm.modules.consent.service.account.AccountsService;
+import com.sbm.modules.consent.service.account.AcountTypeServiceImpl;
 import com.sbm.modules.consent.service.consent.ConsentService;
+import com.sbm.modules.consent.service.user.UserService;
+import com.sbm.modules.openbanking.service.AccountService;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +82,15 @@ public class ApprovalController {
 	@Autowired
 	private ConsentService consentService;
 
+	@Autowired
+	AccountsService accountService;
+
+	@Autowired
+	UserService userService;
+
+	@Autowired
+	private AccountTypeService accountTypeService;
+
 	private final String USER_ACCOUNTS_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/accounts";
 
 	@RequestMapping(
@@ -82,6 +100,11 @@ public class ApprovalController {
 	public View approveOrDeny(@RequestParam Map<String, String> approvalParameters, Map<String, ?> model,
 			SessionStatus sessionStatus, Principal principal, HttpServletResponse httpServletResponse,
 			HttpServletRequest request) {
+
+		List<String> accounts = null;
+		if(approvalParameters.get("accounts") != null) {
+			accounts = Arrays.asList(approvalParameters.get("accounts").split(","));
+		}
 
 		HttpSession httpSession = request.getSession();
 		if (!(principal instanceof Authentication)) {
@@ -111,6 +134,7 @@ public class ApprovalController {
 		authorizationRequest.setApprovalParameters(approvalParameters);
 		authorizationRequest = updateAfterApproval(authorizationRequest,
 				(Authentication) principal);
+
 		boolean approved = this.userApprovalHandler.isApproved(authorizationRequest, (Authentication) principal);
 		authorizationRequest.setApproved(approved);
 
@@ -137,16 +161,16 @@ public class ApprovalController {
 		if (externalUrl != null) {
 			LOG.info("********************External server url done --- **** " + externalUrl
 					+ "*********************************************");
+			String accountsStr = StringUtils.join(accounts, '+');
+			LOG.info("******************* Acounts **** " + accountsStr
+					+ "*********************************************");
+			httpServletResponse.addHeader("API-OAUTH-METADATA-FOR-PAYLOAD", accountsStr);
+			httpServletResponse.addHeader("API-OAUTH-METADATA-FOR-ACCESSTOKEN", accountsStr);
 			return new RedirectView(externalUrl, false, true, false);
 		}
 		else {
 			return new RedirectView(getServerUrl(request), false, true, false);
 		}
-		//		}
-		//		finally {
-		//			sessionStatus.setComplete();
-		//		}
-
 	}
 
 	@RequestMapping("/oauth/confirm_access")
@@ -154,6 +178,8 @@ public class ApprovalController {
 
 		AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get("authorizationRequest");
 		String clientId = authorizationRequest.getClientId();
+
+		HttpSession userSession = request.getSession();
 
 		App clientDetails = this.appService.getAppByClientId(clientId);
 
@@ -171,6 +197,32 @@ public class ApprovalController {
 		if (accounts != null) {
 			Map data = (Map) accounts.get("Data");
 			if (data != null && data.get("Account") != null) {
+				List accountsList = (List)((Map) accounts.get("Data")).get("Account");
+				String userName = (String)userSession.getAttribute("userName");
+				if (userName != null && accountsList.size() > 0) {
+					accountsList.stream().forEach(account -> {
+						if (((Map)account).get("AccountId") != null && !"".equals(((Map)account).get("AccountId").toString().trim())) {
+							Account currentAccount = accountService.getAccount(((Map)account).get("AccountId").toString());
+							User currentUser = userService.findUserByUsername(userName);
+
+							if ((currentAccount == null || currentAccount.getId() == null) && (currentUser != null && currentUser.getId() != null)) {
+								Account accountEntity = new Account();
+								accountEntity.setAccountNumber(((Map)account).get("AccountId").toString());
+								accountEntity.setUser(currentUser);
+
+								if (((Map)account).get("AccountSubType") != null) {
+									AccountType accountType = accountTypeService.getAccountTypeByCode(((Map)account).get("AccountSubType").toString());
+									if (accountType != null && accountType.getId() != null) {
+										accountEntity.setAccountType(accountType);
+									}
+								}
+								accountService.saveAccount(accountEntity);
+							}
+
+						}
+					});
+				}
+
 				mdl.addAttribute("accounts", ((Map) accounts.get("Data")).get("Account"));
 			}
 			else {

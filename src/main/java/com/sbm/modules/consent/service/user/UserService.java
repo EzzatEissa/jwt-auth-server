@@ -16,4 +16,6 @@ public interface UserService {
     public List<UserDto> getUser(UserSearchDto userSearchDto);
 
     public User getUserByMobileNumber(String mobileNumber);
+
+    public void saveUser(User user);
 }

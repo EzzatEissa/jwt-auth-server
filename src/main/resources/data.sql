@@ -92,12 +92,12 @@ VALUES(3, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', '', 'Mohamed Abdalla
 -- ------------------------- ACCOUNT ----------------------------
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
-VALUES(1, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '1084835731527', 1, 6);
-
+VALUES(1, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '108483573152788', 1, 6);
+-- 1084835731527
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
-VALUES(2, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '4697356445296', 1, 7);
-
+VALUES(2, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'ACTIVE', '469735644529688', 1, 7);
+-- 4697356445296
 INSERT INTO account
 (id, created_at, description, last_updated_at, status, account_number, user, account_type)
 VALUES(3, '2020-08-17 18:47:52', '', '2020-08-17 18:47:52', 'NOT ACTIVE', '9657774111', 2, 6);

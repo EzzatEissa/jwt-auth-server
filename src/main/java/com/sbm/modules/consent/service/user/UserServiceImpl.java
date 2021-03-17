@@ -50,4 +50,9 @@ public class UserServiceImpl implements UserService {
     public User getUserByMobileNumber(String mobileNumber) {
         return userRepo.getUserByMobile(mobileNumber);
     }
+
+    @Override
+    public void saveUser(User user) {
+        userRepo.save(user);
+    }
 }
