@@ -71,10 +71,9 @@ public class ConsentServiceImpl implements ConsentService {
                 Account account = accountService.getAccount(accountNumber.trim());
                 if(account != null) {
 
-                    List<Consent> consents = getConsentByAccountAndApp(accountNumber, app.getClientId());
+                    List<Consent> consents = getConsentByAccountAndApp(accountNumber.trim(), app.getClientId());
                     if(consents != null && !consents.isEmpty()) {
                         consents.stream().forEach(cnsnt -> {
-//                            cnsnt.setStatus(ConsentStatus.REJECTED.toString());
                             consentRepo.delete(cnsnt);
                         });
                     }

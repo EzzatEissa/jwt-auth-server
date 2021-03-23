@@ -159,8 +159,7 @@ CREATE TABLE IF NOT EXISTS consent (
   app bigint(20) DEFAULT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (app) REFERENCES oauth_client_details (id),
-  FOREIGN KEY (account) REFERENCES account (id),
-  UNIQUE KEY app_account_constains(account, app)
+  FOREIGN KEY (account) REFERENCES account (id)
 );
 
 CREATE TABLE IF NOT EXISTS consent_permission (
