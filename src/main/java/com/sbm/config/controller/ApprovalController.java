@@ -99,7 +99,7 @@ public class ApprovalController {
 			params = OAuth2Utils.USER_OAUTH_APPROVAL)
 	public View approveOrDeny(@RequestParam Map<String, String> approvalParameters, Map<String, ?> model,
 			SessionStatus sessionStatus, Principal principal, HttpServletResponse httpServletResponse,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws  Exception{
 
 		List<String> accounts = null;
 		if(approvalParameters.get("accounts") != null) {
@@ -164,9 +164,12 @@ public class ApprovalController {
 			String accountsStr = StringUtils.join(accounts, '+');
 			LOG.info("******************* Acounts **** " + accountsStr
 					+ "*********************************************");
-			httpServletResponse.addHeader("API-OAUTH-METADATA-FOR-PAYLOAD", accountsStr);
-			httpServletResponse.addHeader("API-OAUTH-METADATA-FOR-ACCESSTOKEN", accountsStr);
-			return new RedirectView(externalUrl, false, true, false);
+			httpServletResponse.setHeader("API-OAUTH-METADATA-FOR-PAYLOAD", accountsStr);
+			httpServletResponse.setHeader("API-OAUTH-METADATA-FOR-ACCESSTOKEN", accountsStr);
+			RedirectView redirectView = new RedirectView(externalUrl, false, true, false);
+			redirectView.setPropagateQueryParams(true);
+//			httpServletResponse.sendRedirect(externalUrl);
+			return redirectView;
 		}
 		else {
 			return new RedirectView(getServerUrl(request), false, true, false);
