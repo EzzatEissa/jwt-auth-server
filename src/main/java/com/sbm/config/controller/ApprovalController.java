@@ -167,7 +167,6 @@ public class ApprovalController {
 			httpServletResponse.setHeader("API-OAUTH-METADATA-FOR-PAYLOAD", accountsStr);
 			httpServletResponse.setHeader("API-OAUTH-METADATA-FOR-ACCESSTOKEN", accountsStr);
 			RedirectView redirectView = new RedirectView(externalUrl, false, true, false);
-			redirectView.setPropagateQueryParams(true);
 //			httpServletResponse.sendRedirect(externalUrl);
 			return redirectView;
 		}
