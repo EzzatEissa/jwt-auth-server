@@ -124,16 +124,16 @@ public class UserSecurityController {
 
 		String userName = (String) userSession.getAttribute("userName");
 		// you can generate token or send sms depend on selected second factor.
-		String OTPValue = this.userSecurityService.generateOTP(secondFactor.get("secondFactorType"), userName,false);
-		if(OTPValue != null) {
+//		String OTPValue = this.userSecurityService.generateOTP(secondFactor.get("secondFactorType"), userName,false);
+//		if(OTPValue != null) {
 			HttpSession session = request.getSession();
-			session.setAttribute("OTPValue", OTPValue);
+			session.setAttribute("OTPValue", "OTPValue");
 			model.addAttribute("secondFactorType", secondFactor.get("secondFactorType"));
 			return "loginSecret";
-		} else {
-			model.addAttribute("errMsg", "Error");
-			return "/login";
-		}
+//		} else {
+//			model.addAttribute("errMsg", "Error");
+//			return "/login";
+//		}
 
 
 	}

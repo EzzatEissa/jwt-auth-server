@@ -1,24 +1,16 @@
 package com.sbm.config.controller;
 
-import java.io.IOException;
-import java.net.URI;
-import java.security.Principal;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import com.sbm.config.security.service.CustomUserApprovalHandler;
+import com.sbm.modules.consent.dto.PermissionDto;
 import com.sbm.modules.consent.model.Account;
 import com.sbm.modules.consent.model.AccountType;
+import com.sbm.modules.consent.model.App;
 import com.sbm.modules.consent.model.User;
 import com.sbm.modules.consent.service.account.AccountTypeService;
 import com.sbm.modules.consent.service.account.AccountsService;
-import com.sbm.modules.consent.service.account.AcountTypeServiceImpl;
+import com.sbm.modules.consent.service.app.AppService;
 import com.sbm.modules.consent.service.consent.ConsentService;
+import com.sbm.modules.consent.service.permission.PermissionService;
 import com.sbm.modules.consent.service.user.UserService;
-import com.sbm.modules.openbanking.service.AccountService;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -36,7 +28,6 @@ import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAut
 import org.springframework.security.oauth2.common.exceptions.UserDeniedAuthorizationException;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
-import org.springframework.security.oauth2.provider.approval.DefaultUserApprovalHandler;
 import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,10 +43,19 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.sbm.modules.consent.dto.PermissionDto;
-import com.sbm.modules.consent.model.App;
-import com.sbm.modules.consent.service.app.AppService;
-import com.sbm.modules.consent.service.permission.PermissionService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.URI;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Controller
 @SessionAttributes({ ApprovalController.AUTHORIZATION_REQUEST_ATTR_NAME,
@@ -92,6 +92,9 @@ public class ApprovalController {
 	private AccountTypeService accountTypeService;
 
 	private final String USER_ACCOUNTS_URL = "https://api.eu-gb.apiconnect.appdomain.cloud/marehemsbmcomsa-dev/test-catalog/accounts";
+	private String accounts = "{\"Data\":{\"Account\":[{\"AccountId\":\"4697356445296\",\"AccountSubType\":\"Mortgage\"},{\"AccountId\":\"1084835731527\",\"AccountSubType\":\"Loan\"}]}}";
+
+	private Boolean isMock = true;
 
 	@RequestMapping(
 			value = "/oauth/user-authorize",
@@ -176,7 +179,7 @@ public class ApprovalController {
 	}
 
 	@RequestMapping("/oauth/confirm_access")
-	public String getAccessConfirmation(Map<String, Object> model, HttpServletRequest request, Model mdl) {
+	public String getAccessConfirmation(Map<String, Object> model, HttpServletRequest request, Model mdl) throws Exception{
 
 		AuthorizationRequest authorizationRequest = (AuthorizationRequest) model.get("authorizationRequest");
 		String clientId = authorizationRequest.getClientId();
@@ -235,24 +238,34 @@ public class ApprovalController {
 		return "confirmAccess";
 	}
 
-	private Map getAccounts() {
+
+	private Map getAccounts() throws Exception{
 		Map resJson = null;
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("mock", "true");
-
-		HttpEntity<String> entity = new HttpEntity<>("body", headers);
-
-		ResponseEntity<String> res = restTemplate.exchange(this.USER_ACCOUNTS_URL, HttpMethod.GET, entity,
-				String.class);
-
 		ObjectMapper mapper = new ObjectMapper();
-		try {
-			resJson = mapper.readValue(res.getBody(), HashMap.class);
+		if (isMock) {
+			resJson = new HashMap();
+			Map<String, Object> map = mapper.readValue(accounts, Map.class);
+			return map;
+		} else {
+			RestTemplate restTemplate = new RestTemplate();
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("mock", "true");
+
+			HttpEntity<String> entity = new HttpEntity<>("body", headers);
+
+			ResponseEntity<String> res = restTemplate.exchange(this.USER_ACCOUNTS_URL, HttpMethod.GET, entity,
+					String.class);
+
+
+			try {
+				resJson = mapper.readValue(res.getBody(), HashMap.class);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+
+
 
 		return resJson;
 	}

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,10 @@ public class UserSecurityServiceImpl implements UserSecurityService {
 
     private static final String REDIRECT_PATH = "/user/second_factor";
 
+    private String secondFactorTypes = "[{\"enabled\":false,\"name\":\"TOKEN\"},{\"enabled\":false,\"name\":\"OFFLINE\"},{\"enabled\":true,\"name\":\"SMS_SECONDARY\"},{\"enabled\":true,\"name\":\"SOFTTOKEN\"},{\"enabled\":true,\"name\":\"SMS_PRIMARY\"}]";
+
+    private Boolean isMock = true;
+
     @Autowired
     UserService userService;
 
@@ -60,62 +65,84 @@ public class UserSecurityServiceImpl implements UserSecurityService {
     @Override
     public UserAuthDto userLogin(String userName, String password, HttpServletRequest request) throws Exception {
 
-        HttpHeaders headers = new HttpHeaders();
-        Map<String, Object> body = new HashMap<>();
-        body.put("username", userName);
-        body.put("password", password);
-        headers.add("mock", "false");
 
-        headers.add("x-rb-user-id", userName);
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-        ResponseEntity<String> res = null;
-        try {
-            res = restTemplate.exchange(this.LOGIN_URL, HttpMethod.POST, entity, String.class);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new Exception("Connection timeout");
-        }
+        if (isMock) {
+            return userLoginWithMock(userName, password, request);
+        } else {
+            HttpHeaders headers = new HttpHeaders();
+            Map<String, Object> body = new HashMap<>();
+            body.put("username", userName);
+            body.put("password", password);
+            headers.add("mock", "false");
 
-        if (res != null) {
-            ObjectMapper mapper = new ObjectMapper();
+            headers.add("x-rb-user-id", userName);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            ResponseEntity<String> res = null;
             try {
-                Map resJson = mapper.readValue(res.getBody(), HashMap.class);
-                if (resJson.get("data") != null) {
-                    UserAuthDto userAuthDto = new UserAuthDto();
-                    Boolean successLogin = (Boolean) ((Map) resJson.get("data")).get("success");
-                    if (successLogin != null && successLogin) {
-                        userAuthDto.setSuccessLogin(successLogin);
-                        HttpSession userSession = request.getSession();
-                        userSession.setAttribute("userName", userName);
-                        userSession.setAttribute("password", password);
-
-                        addNewUser(userName, password);
-
-                        Boolean secondAuthEnabled = (Boolean) ((Map) resJson.get("data")).get("secondary_authentication_enabled");
-                        if (secondAuthEnabled != null) {
-                            userAuthDto.setSecondFactorEnabled(secondAuthEnabled);
-                            if (((Map) resJson.get("data")).get("authentication_types") != null) {
-                                List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = (List) ((Map) resJson.get("data")).get("authentication_types");
-                                userAuthDto.setAuthenticationFactorTypesDtoList(authenticationFactorTypesDtoList);
-                            }
-
-                        }
-                        return userAuthDto;
-                    } else {
-                        throw new Exception("ErrorLogin");
-                    }
-
-
-                }
-                throw new Exception("Error");
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new Exception("Error");
+                res = restTemplate.exchange(this.LOGIN_URL, HttpMethod.POST, entity, String.class);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw new Exception("Connection timeout");
             }
 
-        } else {
-            throw new Exception("Error");
+            if (res != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    Map resJson = mapper.readValue(res.getBody(), HashMap.class);
+                    if (resJson.get("data") != null) {
+                        UserAuthDto userAuthDto = new UserAuthDto();
+                        Boolean successLogin = (Boolean) ((Map) resJson.get("data")).get("success");
+                        if (successLogin != null && successLogin) {
+                            userAuthDto.setSuccessLogin(successLogin);
+                            HttpSession userSession = request.getSession();
+                            userSession.setAttribute("userName", userName);
+                            userSession.setAttribute("password", password);
+
+                            addNewUser(userName, password);
+
+                            Boolean secondAuthEnabled = (Boolean) ((Map) resJson.get("data")).get("secondary_authentication_enabled");
+                            if (secondAuthEnabled != null) {
+                                userAuthDto.setSecondFactorEnabled(secondAuthEnabled);
+                                if (((Map) resJson.get("data")).get("authentication_types") != null) {
+                                    List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = (List) ((Map) resJson.get("data")).get("authentication_types");
+                                    userAuthDto.setAuthenticationFactorTypesDtoList(authenticationFactorTypesDtoList);
+                                }
+
+                            }
+                            return userAuthDto;
+                        } else {
+                            throw new Exception("ErrorLogin");
+                        }
+
+
+                    }
+                    throw new Exception("Error");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new Exception("Error");
+                }
+
+            } else {
+                throw new Exception("Error");
+            }
         }
+    }
+
+    private UserAuthDto userLoginWithMock(String userName, String password, HttpServletRequest request) throws Exception{
+        UserAuthDto userAuthDto = new UserAuthDto();
+        userAuthDto.setSuccessLogin(true);
+        userAuthDto.setSecondFactorEnabled(true);
+        ObjectMapper mapper = new ObjectMapper();
+        List<AuthenticationFactorTypesDto> authenticationFactorTypesDtoList = Arrays.asList(mapper.readValue(secondFactorTypes, AuthenticationFactorTypesDto[].class));
+        userAuthDto.setAuthenticationFactorTypesDtoList(authenticationFactorTypesDtoList);
+
+        HttpSession userSession = request.getSession();
+        userSession.setAttribute("userName", userName);
+        userSession.setAttribute("password", password);
+
+        addNewUser(userName, password);
+
+        return userAuthDto;
     }
 
     private void addNewUser(String userName, String password) {
